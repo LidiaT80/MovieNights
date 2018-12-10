@@ -6,14 +6,14 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
-@Entity(name = "user")
-@Table(name = "user")
+@Entity(name = "person")
+@Table(name = "person")
 @DynamicUpdate
-public class User {
+public class Person {
 
     @Id
     @GeneratedValue
-    private long id;
+    private int id;
     @Column(name = "name")
     @NotNull
     private String name;
@@ -21,12 +21,12 @@ public class User {
     @Email
     private String email;
 
-    public User(String name, String email){
+    public Person(String name, String email){
         this.name = name;
         this.email = email;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
