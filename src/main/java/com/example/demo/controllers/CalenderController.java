@@ -1,5 +1,4 @@
-package com.example.demo.calender_api;
-
+package com.example.demo.controllers;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
@@ -12,26 +11,23 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-@Controller
-public class CalenderData {
+@RestController
+public class CalenderController {
 
-    private final static Logger logger = LoggerFactory.getLogger(CalenderData.class);
+    private final static Logger logger = LoggerFactory.getLogger(CalenderController.class);
     private static final String APPLICATION_NAME = "MovieNights";
     private static HttpTransport httpTransport;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -41,9 +37,7 @@ public class CalenderData {
     GoogleAuthorizationCodeFlow flow;
     Credential credential;
 
-    final DateTime date1 = new DateTime(new Date());
-    final DateTime date2 = new DateTime("2019-01-01T16:30:00.000+05:30");
-
+    final DateTime startDate = new DateTime(new Date());
 
     @Value("${google.client.client-id}")
     private String clientId;
@@ -54,31 +48,37 @@ public class CalenderData {
     @Value("${google.client.scope}")
     private String scope;
 
+    private List<String> calenderEvents = new ArrayList<>();
+    private String calenderEvent;
+
     @RequestMapping(value = "/calender", method = RequestMethod.GET)
-    public RedirectView googleConnectionStatus(HttpServletRequest request) throws Exception {
+    public RedirectView googleConnectionStatus() throws Exception {
         return new RedirectView(authorize());
     }
 
     @RequestMapping(value = "/calender", method = RequestMethod.GET, params = "code")
     public ResponseEntity<String> oauth2Callback(@RequestParam(value = "code") String code) {
         com.google.api.services.calendar.model.Events eventList;
-        String message;
+        String message = "";
         try {
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-            credential = flow.createAndStoreCredential(response, "userID");
+            credential = flow.createAndStoreCredential(response, "userId");
             client = new com.google.api.services.calendar.Calendar.Builder(httpTransport, JSON_FACTORY, credential)
                     .setApplicationName(APPLICATION_NAME).build();
             Calendar.Events events = client.events();
-            eventList = events.list("primary").setTimeMin(date1).setTimeMax(date2).execute();
-            message = eventList.getItems().get(0).getStart().getDateTime().toString() +
-                        " - " + eventList.getItems().get(0).getEnd().getDateTime().toString() +
-                        " : " + eventList.getItems().get(0).getSummary();
+            eventList = events.list("primary").setTimeMin(startDate).execute();
+            for (com.google.api.services.calendar.model.Event item:eventList.getItems()) {
+                calenderEvent = item.getCreator().getEmail() + ": "
+                                + item.getSummary() + ", from "
+                                + item.getStart().getDateTime().toString() + " to "
+                                + item.getEnd().getDateTime().toString();
+                calenderEvents.add(calenderEvent);
+                message += calenderEvent + "\n";
+            }
             System.out.println("My:" + eventList.getItems());
         } catch (Exception e) {
-            logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")."
-                    + " Redirecting to google connection status page.");
-            message = "Exception while handling OAuth2 callback (" + e.getMessage() + ")."
-                    + " Redirecting to google connection status page.";
+            logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")");
+            message = "Exception while handling OAuth2 callback (" + e.getMessage() + ").";
         }
 
         System.out.println("cal message:" + message);

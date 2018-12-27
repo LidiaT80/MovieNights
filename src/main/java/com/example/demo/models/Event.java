@@ -1,39 +1,52 @@
 package com.example.demo.models;
 
-import com.google.api.client.util.DateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
-    private String title;
-    private DateTime start;
-    private DateTime end;
 
-    public Event(String title, DateTime start, DateTime end){
-        this.title = title;
-        this.start = start;
-        this.end = end;
+    @JsonProperty("creator")
+    private User creator;
+    @JsonProperty("summary")
+    private String summary;
+    @JsonProperty("start")
+    private EventTime start;
+    @JsonProperty("end")
+    private EventTime end;
+
+    public Event(){
     }
 
-    public String getTitle() {
-        return title;
+    public String getSummary() {
+        return summary;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
-    public DateTime getStart() {
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public EventTime getStart() {
         return start;
     }
 
-    public void setStart(DateTime start) {
+    public void setStart(EventTime start) {
         this.start = start;
     }
 
-    public DateTime getEnd() {
+    public EventTime getEnd() {
         return end;
     }
 
-    public void setEnd(DateTime end) {
+    public void setEnd(EventTime end) {
         this.end = end;
     }
 }
