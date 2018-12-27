@@ -11,6 +11,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,18 +49,16 @@ public class CalenderController {
     @Value("${google.client.scope}")
     private String scope;
 
-    private List<String> calenderEvents = new ArrayList<>();
-    private String calenderEvent;
-
     @RequestMapping(value = "/calender", method = RequestMethod.GET)
     public RedirectView googleConnectionStatus() throws Exception {
         return new RedirectView(authorize());
     }
 
     @RequestMapping(value = "/calender", method = RequestMethod.GET, params = "code")
-    public ResponseEntity<String> oauth2Callback(@RequestParam(value = "code") String code) {
+    public List<com.google.api.services.calendar.model.Event> oauth2Callback(@RequestParam(value = "code") String code) {
         com.google.api.services.calendar.model.Events eventList;
-        String message = "";
+        List<Event> calenderEvents = null;
+
         try {
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
             credential = flow.createAndStoreCredential(response, "userId");
@@ -67,22 +66,12 @@ public class CalenderController {
                     .setApplicationName(APPLICATION_NAME).build();
             Calendar.Events events = client.events();
             eventList = events.list("primary").setTimeMin(startDate).execute();
-            for (com.google.api.services.calendar.model.Event item:eventList.getItems()) {
-                calenderEvent = item.getCreator().getEmail() + ": "
-                                + item.getSummary() + ", from "
-                                + item.getStart().getDateTime().toString() + " to "
-                                + item.getEnd().getDateTime().toString();
-                calenderEvents.add(calenderEvent);
-                message += calenderEvent + "\n";
-            }
+            calenderEvents = eventList.getItems();
             System.out.println("My:" + eventList.getItems());
         } catch (Exception e) {
             logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")");
-            message = "Exception while handling OAuth2 callback (" + e.getMessage() + ").";
         }
-
-        System.out.println("cal message:" + message);
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        return calenderEvents;
     }
 
 

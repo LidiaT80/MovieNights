@@ -19,6 +19,18 @@ public class UserController {
         List<User> users = (List<User>) userRepository.findAll();
         return users;
     }
+/*
+    @RequestMapping(value = "users/{userId}")
+    public User findUserById(@PathVariable("userId") int id){
+        User user = userDbHandler.findUserById(userRepository, id);
+        return user;
+    }
+*/
+    @RequestMapping(value = "users/{name}")
+    public List<User> findUsersByName(@PathVariable("name") String name){
+        List<User> users = userDbHandler.findUserByName(userRepository, name);
+        return users;
+    }
 
     @RequestMapping(value = "/saveUser")
     public RedirectView saveUser(@RequestParam String name, @RequestParam String email, @RequestParam String password){
