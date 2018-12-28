@@ -1,10 +1,15 @@
 package com.example.demo.controllers;
 
+import com.example.demo.models.Token;
+import com.example.demo.models.User;
+import com.example.demo.repositories.TokenRepository;
+import com.example.demo.repositories.UserRepository;
+import com.example.demo.utilities.CalenderHandler;
+import com.example.demo.utilities.UserDbHandler;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -14,6 +19,7 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,18 +33,20 @@ import java.util.*;
 
 @RestController
 public class CalenderController {
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    TokenRepository tokenRepository;
+    private UserDbHandler userDbHandler = new UserDbHandler();
+    private CalenderHandler calenderHandler = new CalenderHandler();
 
     private final static Logger logger = LoggerFactory.getLogger(CalenderController.class);
     private static final String APPLICATION_NAME = "MovieNights";
     private static HttpTransport httpTransport;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static com.google.api.services.calendar.Calendar client;
 
     GoogleClientSecrets clientSecrets;
     GoogleAuthorizationCodeFlow flow;
-    Credential credential;
-
-    final DateTime startDate = new DateTime(new Date());
 
     @Value("${google.client.client-id}")
     private String clientId;
@@ -49,29 +57,47 @@ public class CalenderController {
     @Value("${google.client.scope}")
     private String scope;
 
+    @RequestMapping(value = "/userevents", method = RequestMethod.GET)
+    public RedirectView getCalender(){
+        String email = "tothlidia80@gmail.com";
+        User user = userDbHandler.findUserByEmail(userRepository, email);
+        if (calenderHandler.hasToken(user, tokenRepository)){
+            return new RedirectView("/events");
+        }else {
+            return new RedirectView("/calender");
+        }
+    }
+
+    @RequestMapping(value = "/events")
+    public List<Event> showEvents(){
+        String email = "tothlidia80@gmail.com";
+        User user = userDbHandler.findUserByEmail(userRepository, email);
+        return calenderHandler.getEvents(user, tokenRepository);
+    }
+
     @RequestMapping(value = "/calender", method = RequestMethod.GET)
     public RedirectView googleConnectionStatus() throws Exception {
         return new RedirectView(authorize());
     }
 
     @RequestMapping(value = "/calender", method = RequestMethod.GET, params = "code")
-    public List<com.google.api.services.calendar.model.Event> oauth2Callback(@RequestParam(value = "code") String code) {
-        com.google.api.services.calendar.model.Events eventList;
-        List<Event> calenderEvents = null;
-
+    public RedirectView oauth2Callback(@RequestParam(value = "code") String code) {
+        String accessToken;
         try {
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-            credential = flow.createAndStoreCredential(response, "userId");
-            client = new com.google.api.services.calendar.Calendar.Builder(httpTransport, JSON_FACTORY, credential)
-                    .setApplicationName(APPLICATION_NAME).build();
-            Calendar.Events events = client.events();
-            eventList = events.list("primary").setTimeMin(startDate).execute();
-            calenderEvents = eventList.getItems();
-            System.out.println("My:" + eventList.getItems());
+            accessToken = response.getAccessToken();
+            String refreshToken = response.getRefreshToken();
+            Long expiresAt = System.currentTimeMillis() + (response.getExpiresInSeconds() * 1000);
+            String userId = ((GoogleTokenResponse) response).parseIdToken().getPayload().getSubject();
+            String userEmail = ((GoogleTokenResponse) response).parseIdToken().getPayload().getEmail();
+            User user = userDbHandler.findUserByEmail(userRepository, userEmail);
+            Token token = new Token(userId, accessToken, refreshToken, expiresAt);
+            token.setUser(user);
+            tokenRepository.save(token);
         } catch (Exception e) {
             logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")");
         }
-        return calenderEvents;
+        return new RedirectView("/userevents");
     }
 
 

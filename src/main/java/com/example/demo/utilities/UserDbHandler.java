@@ -22,9 +22,17 @@ public class UserDbHandler {
         return null;
     }
 
-    public List<User> findUserByName(UserRepository userRepository, String name){
+    public List<User> findUsersByName(UserRepository userRepository, String name){
         List<User> users = (List<User>) userRepository.findAll();
-        List<User> userList = users.stream().filter(user -> user.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
+        List<User> userList = users.stream()
+                                .filter(user -> user.getName().equalsIgnoreCase(name)).collect(Collectors.toList());
         return userList;
+    }
+
+    public User findUserByEmail(UserRepository userRepository, String email){
+        List<User> users = (List<User>) userRepository.findAll();
+        User user = users.stream()
+                    .filter(user1 -> user1.getEmail().equalsIgnoreCase(email)).collect(Collectors.toList()).get(0);
+        return user;
     }
 }
