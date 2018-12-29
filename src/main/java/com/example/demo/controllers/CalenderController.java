@@ -45,6 +45,8 @@ public class CalenderController {
     private static HttpTransport httpTransport;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
+    private String userEmail;
+
     GoogleClientSecrets clientSecrets;
     GoogleAuthorizationCodeFlow flow;
 
@@ -57,21 +59,33 @@ public class CalenderController {
     @Value("${google.client.scope}")
     private String scope;
 
-    @RequestMapping(value = "/userevents", method = RequestMethod.GET)
-    public RedirectView getCalender(){
-        String email = "tothlidia80@gmail.com";
+    @RequestMapping(value = "/userevents", method = RequestMethod.GET, params = "email")
+    public RedirectView getCalenderWithParam(@RequestParam String email){
+        RedirectView redirectView;
         User user = userDbHandler.findUserByEmail(userRepository, email);
         if (calenderHandler.hasToken(user, tokenRepository)){
-            return new RedirectView("/events");
+            redirectView = new RedirectView("/events");
+            redirectView.setPropagateQueryParams(true);
+            return redirectView;
         }else {
             return new RedirectView("/calender");
         }
     }
 
-    @RequestMapping(value = "/events")
-    public List<Event> showEvents(){
-        String email = "tothlidia80@gmail.com";
+    @RequestMapping(value = "/userevents", method = RequestMethod.GET)
+    public RedirectView getCalender(){
+        return new RedirectView("/events");
+    }
+
+    @RequestMapping(value = "/events", method = RequestMethod.GET, params = "email")
+    public List<Event> showEventsWithParam(@RequestParam String email){
         User user = userDbHandler.findUserByEmail(userRepository, email);
+        return calenderHandler.getEvents(user, tokenRepository);
+    }
+
+    @RequestMapping(value = "/events", method = RequestMethod.GET)
+    public List<Event> showEvents(){
+        User user = userDbHandler.findUserByEmail(userRepository, userEmail);
         return calenderHandler.getEvents(user, tokenRepository);
     }
 
@@ -89,7 +103,7 @@ public class CalenderController {
             String refreshToken = response.getRefreshToken();
             Long expiresAt = System.currentTimeMillis() + (response.getExpiresInSeconds() * 1000);
             String userId = ((GoogleTokenResponse) response).parseIdToken().getPayload().getSubject();
-            String userEmail = ((GoogleTokenResponse) response).parseIdToken().getPayload().getEmail();
+            userEmail = ((GoogleTokenResponse) response).parseIdToken().getPayload().getEmail();
             User user = userDbHandler.findUserByEmail(userRepository, userEmail);
             Token token = new Token(userId, accessToken, refreshToken, expiresAt);
             token.setUser(user);

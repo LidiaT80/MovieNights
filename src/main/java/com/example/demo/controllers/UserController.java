@@ -20,18 +20,6 @@ public class UserController {
         return users;
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.GET, params = "email")
-    public RedirectView getUser(@RequestParam(value = "email") String email){
-        User user = userDbHandler.findUserByEmail(userRepository, email);
-        return new RedirectView("/calender");
-    }
-/*
-    @RequestMapping(value = "users/{userId}")
-    public User findUserById(@PathVariable("userId") int id){
-        User user = userDbHandler.findUserById(userRepository, id);
-        return user;
-    }
-*/
     @RequestMapping(value = "users/{name}")
     public List<User> findUsersByName(@PathVariable("name") String name){
         List<User> users = userDbHandler.findUsersByName(userRepository, name);
