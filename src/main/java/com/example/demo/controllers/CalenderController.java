@@ -5,24 +5,20 @@ import com.example.demo.models.User;
 import com.example.demo.repositories.TokenRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.utilities.CalenderHandler;
+import com.example.demo.utilities.TokenHandler;
 import com.example.demo.utilities.UserDbHandler;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,11 +33,12 @@ public class CalenderController {
     UserRepository userRepository;
     @Autowired
     TokenRepository tokenRepository;
+
     private UserDbHandler userDbHandler = new UserDbHandler();
     private CalenderHandler calenderHandler = new CalenderHandler();
+    private TokenHandler tokenHandler = new TokenHandler();
 
     private final static Logger logger = LoggerFactory.getLogger(CalenderController.class);
-    private static final String APPLICATION_NAME = "MovieNights";
     private static HttpTransport httpTransport;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
@@ -63,7 +60,7 @@ public class CalenderController {
     public RedirectView getCalenderWithParam(@RequestParam String email){
         RedirectView redirectView;
         User user = userDbHandler.findUserByEmail(userRepository, email);
-        if (calenderHandler.hasToken(user, tokenRepository)){
+        if (tokenHandler.hasToken(user, tokenRepository)){
             redirectView = new RedirectView("/events");
             redirectView.setPropagateQueryParams(true);
             return redirectView;
@@ -96,21 +93,26 @@ public class CalenderController {
 
     @RequestMapping(value = "/calender", method = RequestMethod.GET, params = "code")
     public RedirectView oauth2Callback(@RequestParam(value = "code") String code) {
+        TokenResponse response = null;
+        String userId = null;
         String accessToken;
+        String refreshToken;
+        Long expiresAt;
         try {
-            TokenResponse response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
-            accessToken = response.getAccessToken();
-            String refreshToken = response.getRefreshToken();
-            Long expiresAt = System.currentTimeMillis() + (response.getExpiresInSeconds() * 1000);
-            String userId = ((GoogleTokenResponse) response).parseIdToken().getPayload().getSubject();
+            response = flow.newTokenRequest(code).setRedirectUri(redirectURI).execute();
+            userId = ((GoogleTokenResponse) response).parseIdToken().getPayload().getSubject();
             userEmail = ((GoogleTokenResponse) response).parseIdToken().getPayload().getEmail();
-            User user = userDbHandler.findUserByEmail(userRepository, userEmail);
-            Token token = new Token(userId, accessToken, refreshToken, expiresAt);
-            token.setUser(user);
-            tokenRepository.save(token);
+
         } catch (Exception e) {
             logger.warn("Exception while handling OAuth2 callback (" + e.getMessage() + ")");
         }
+        accessToken = response.getAccessToken();
+        refreshToken = response.getRefreshToken();
+        expiresAt = System.currentTimeMillis() + (response.getExpiresInSeconds() * 1000);
+        User user = userDbHandler.findUserByEmail(userRepository, userEmail);
+        Token token = new Token(userId, accessToken, refreshToken, expiresAt);
+        token.setUser(user);
+        tokenRepository.save(token);
         return new RedirectView("/userevents");
     }
 
