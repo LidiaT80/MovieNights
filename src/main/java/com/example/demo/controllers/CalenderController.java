@@ -124,7 +124,7 @@ public class CalenderController {
             clientSecrets = new GoogleClientSecrets().setWeb(web);
             httpTransport = GoogleNetHttpTransport.newTrustedTransport();
             flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets,
-                    getScopes()).build();
+                    getScopes()).setAccessType("offline").setApprovalPrompt("force").build();
         }
         authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(redirectURI);
         System.out.println("cal authorizationUrl->" + authorizationUrl);
