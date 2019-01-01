@@ -75,13 +75,13 @@ public class CalenderController {
     }
 
     @RequestMapping(value = "/events", method = RequestMethod.GET, params = "email")
-    public List<Event> showEventsWithParam(@RequestParam String email){
+    public List<Event> getEventsWithParam(@RequestParam String email){
         User user = userDbHandler.findUserByEmail(userRepository, email);
         return calenderHandler.getEvents(user, tokenRepository);
     }
 
     @RequestMapping(value = "/events", method = RequestMethod.GET)
-    public List<Event> showEvents(){
+    public List<Event> getEvents(){
         User user = userDbHandler.findUserByEmail(userRepository, userEmail);
         return calenderHandler.getEvents(user, tokenRepository);
     }
@@ -140,6 +140,11 @@ public class CalenderController {
             scopes.add(s);
         }
         return scopes;
+    }
+
+    @RequestMapping(value = "/dates", method = RequestMethod.GET)
+    public List<String> getAvailableDates(){
+        return calenderHandler.getAvailableDates();
     }
 
 }
