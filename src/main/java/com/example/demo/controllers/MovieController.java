@@ -20,7 +20,7 @@ public class MovieController {
     private final String REQUEST_URL = "http://www.omdbapi.com/?apikey=340a04c&t=";
 
     @RequestMapping("/movie")
-    public ResponseEntity<Movie> getMovie(@RequestParam String title){
+    public ResponseEntity getMovie(@RequestParam String title){
         Movie movie;
         if(movieDbHandler.isInDb(title, movieRepository))
             movie = movieDbHandler.findMovie(title, movieRepository);
@@ -30,7 +30,7 @@ public class MovieController {
             movieDbHandler.saveToDb(movie, movieRepository);
         }
         if(movie == null)
-            return new ResponseEntity<>(movie, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(movie, HttpStatus.OK);
     }
 }

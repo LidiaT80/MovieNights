@@ -16,18 +16,18 @@ public class UserController {
     private UserDbHandler userDbHandler = new UserDbHandler();
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public ResponseEntity<List<User>> showUsers(){
+    public ResponseEntity showUsers(){
         List<User> users = (List<User>) userRepository.findAll();
         if(users.size() == 0)
-            return new ResponseEntity<>(users, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "users/{name}")
-    public ResponseEntity<List<User>> findUsersByName(@PathVariable("name") String name){
+    public ResponseEntity findUsersByName(@PathVariable("name") String name){
         List<User> users = userDbHandler.findUsersByName(userRepository, name);
         if(users.size() == 0)
-            return new ResponseEntity<>(users, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
