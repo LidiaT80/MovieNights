@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,15 +77,17 @@ public class CalenderController {
     }
 
     @RequestMapping(value = "/events", method = RequestMethod.GET, params = "email")
-    public List<Event> getEventsWithParam(@RequestParam String email){
+    public ResponseEntity<List<Event>> getEventsWithParam(@RequestParam String email){
         User user = userDbHandler.findUserByEmail(userRepository, email);
-        return calenderHandler.getEvents(user, tokenRepository);
+        List<Event> response = calenderHandler.getEvents(user, tokenRepository);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/events", method = RequestMethod.GET)
-    public List<Event> getEvents(){
+    public ResponseEntity<List<Event>> getEvents(){
         User user = userDbHandler.findUserByEmail(userRepository, userEmail);
-        return calenderHandler.getEvents(user, tokenRepository);
+        List<Event> response = calenderHandler.getEvents(user, tokenRepository);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/calender", method = RequestMethod.GET)
@@ -143,8 +147,8 @@ public class CalenderController {
     }
 
     @RequestMapping(value = "/dates", method = RequestMethod.GET)
-    public List<String> getAvailableDates(){
-        return calenderHandler.getAvailableDates();
+    public ResponseEntity<List<String>> getAvailableDates(){
+        return new ResponseEntity<>(calenderHandler.getAvailableDates(), HttpStatus.OK);
     }
 
 }

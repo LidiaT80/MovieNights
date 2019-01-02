@@ -4,9 +4,10 @@ import com.example.demo.models.User;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.utilities.UserDbHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class UserController {
@@ -15,23 +16,28 @@ public class UserController {
     private UserDbHandler userDbHandler = new UserDbHandler();
 
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public List<User> showUsers(){
+    public ResponseEntity<List<User>> showUsers(){
         List<User> users = (List<User>) userRepository.findAll();
-        return users;
+        if(users.size() == 0)
+            return new ResponseEntity<>(users, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "users/{name}")
-    public List<User> findUsersByName(@PathVariable("name") String name){
+    public ResponseEntity<List<User>> findUsersByName(@PathVariable("name") String name){
         List<User> users = userDbHandler.findUsersByName(userRepository, name);
-        return users;
+        if(users.size() == 0)
+            return new ResponseEntity<>(users, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/saveUser")
-    public RedirectView saveUser(@RequestParam String name, @RequestParam String email, @RequestParam String password){
+    public ResponseEntity<User> saveUser(@RequestParam String name, @RequestParam String email, @RequestParam String password){
         User newUser = new User(name, email, password);
         if(!userDbHandler.isInDb(newUser, userRepository)){
             userRepository.save(newUser);
+            return new ResponseEntity(newUser, HttpStatus.CREATED);
         }
-        return new RedirectView("/users");
+        return new ResponseEntity<>(newUser,HttpStatus.OK);
     }
 }
