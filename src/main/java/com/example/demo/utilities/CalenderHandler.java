@@ -1,5 +1,6 @@
 package com.example.demo.utilities;
 
+import com.example.demo.models.Movie;
 import com.example.demo.models.User;
 import com.example.demo.repositories.TokenRepository;
 import com.google.api.client.auth.oauth2.Credential;
@@ -11,7 +12,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 public class CalenderHandler {
@@ -21,7 +25,7 @@ public class CalenderHandler {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private Credential credential;
     private TokenHandler tokenHandler = new TokenHandler();
-    private Map<String,List<Event>> userEvents = new HashMap<>();
+    private Map<User,List<Event>> userEvents = new HashMap<>();
     private final int MSEC_PER_DAY = 1000*60*60*24;
 
     public List<Event> getEvents(User user, TokenRepository tokenRepository){
@@ -40,7 +44,7 @@ public class CalenderHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        userEvents.put(user.getEmail(), calenderEvents);
+        userEvents.put(user, calenderEvents);
         return calenderEvents;
     }
 
@@ -102,6 +106,38 @@ public class CalenderHandler {
             }
         }
         return datesBetween;
+    }
+
+    public void bookEvent(Movie movie, DateTime dateTime, TokenRepository tokenRepository){
+        Event event = createNewEvent(movie, dateTime);
+        Set<User> users = userEvents.keySet();
+        for (User user: users) {
+            String accessToken = tokenHandler.getAccessToken(user, tokenRepository);
+            credential = new GoogleCredential().setAccessToken(accessToken);
+            try {
+                httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+                calender = new com.google.api.services.calendar.Calendar.Builder(httpTransport, JSON_FACTORY, credential)
+                        .setApplicationName(APPLICATION_NAME).build();
+                Calendar.Events events = calender.events();
+                events.insert("primary", event).execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Event createNewEvent(Movie movie, DateTime dateTime){
+        Event event = new Event();
+        event.setSummary(movie.getTitle());
+        event.setStart(new EventDateTime().setDateTime(dateTime));
+        DateTime end = new DateTime(dateTime.getValue()+calculateMovieRuntime(movie));
+        event.setEnd(new EventDateTime().setDateTime(end));
+        return event;
+    }
+
+    public int calculateMovieRuntime(Movie movie){
+        int runtime = Integer.parseInt(movie.getRuntime().split(" ")[0])*60*1000;
+        return runtime;
     }
 
 

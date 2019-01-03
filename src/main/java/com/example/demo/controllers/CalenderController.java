@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.models.Movie;
 import com.example.demo.models.Token;
 import com.example.demo.models.User;
 import com.example.demo.repositories.TokenRepository;
@@ -14,6 +15,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +151,12 @@ public class CalenderController {
     @RequestMapping(value = "/dates", method = RequestMethod.GET)
     public ResponseEntity<List<String>> getAvailableDates(){
         return new ResponseEntity<>(calenderHandler.getAvailableDates(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/booking")
+    public ResponseEntity bookEvent(@RequestParam Movie movie, @RequestParam DateTime startDate){
+        calenderHandler.bookEvent(movie, startDate, tokenRepository);
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 
 }
