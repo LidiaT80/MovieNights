@@ -32,13 +32,8 @@ public class CalenderHandler {
         Calendar.Events events;
         com.google.api.services.calendar.model.Events eventList;
         List<Event> calenderEvents = null;
-        String accessToken = tokenHandler.getAccessToken(user, tokenRepository);
-        credential = new GoogleCredential().setAccessToken(accessToken);
         try {
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            calender = new com.google.api.services.calendar.Calendar.Builder(httpTransport, JSON_FACTORY, credential)
-                    .setApplicationName(APPLICATION_NAME).build();
-            events = calender.events();
+            events = getCalender(user, tokenRepository);
             eventList = events.list("primary").setTimeMin(new DateTime(new Date())).execute();
             calenderEvents = eventList.getItems();
         } catch (Exception e) {
@@ -112,13 +107,8 @@ public class CalenderHandler {
         Event event = createNewEvent(movie, dateTime);
         Set<User> users = userEvents.keySet();
         for (User user: users) {
-            String accessToken = tokenHandler.getAccessToken(user, tokenRepository);
-            credential = new GoogleCredential().setAccessToken(accessToken);
             try {
-                httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-                calender = new com.google.api.services.calendar.Calendar.Builder(httpTransport, JSON_FACTORY, credential)
-                        .setApplicationName(APPLICATION_NAME).build();
-                Calendar.Events events = calender.events();
+                Calendar.Events events = getCalender(user, tokenRepository);
                 events.insert("primary", event).execute();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -138,6 +128,23 @@ public class CalenderHandler {
     public int calculateMovieRuntime(Movie movie){
         int runtime = Integer.parseInt(movie.getRuntime().split(" ")[0])*60*1000;
         return runtime;
+    }
+
+    public Calendar.Events getCalender(User user, TokenRepository tokenRepository){
+        Calendar.Events events;
+        String accessToken = tokenHandler.getAccessToken(user, tokenRepository);
+        credential = new GoogleCredential().setAccessToken(accessToken);
+        try {
+            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        calender = new com.google.api.services.calendar.Calendar.Builder(httpTransport, JSON_FACTORY, credential)
+                .setApplicationName(APPLICATION_NAME).build();
+        events = calender.events();
+        return events;
     }
 
 

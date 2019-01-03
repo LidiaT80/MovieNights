@@ -32,7 +32,7 @@ public class UserController {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
-
+    @JsonView(Views.Public.class)
     @RequestMapping(value = "/saveUser")
     public ResponseEntity<User> saveUser(@RequestParam String name, @RequestParam String email, @RequestParam String password){
         User newUser = new User(name, email, password);
