@@ -1,7 +1,9 @@
 package com.example.demo.models;
 
+import com.example.demo.utilities.Views;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -17,10 +19,12 @@ public class User {
     @Id
     @GeneratedValue
     private int id;
+    @JsonView(Views.Public.class)
     @JsonProperty("displayName")
     @Column(name = "name")
     @NotNull
     private String name;
+    @JsonView(Views.Public.class)
     @JsonProperty("email")
     @Column(name = "email")
     @Email
