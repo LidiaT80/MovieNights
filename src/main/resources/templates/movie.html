@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Movie</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <header>
+        <h1>Movie Nights</h1>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/movie">Movies</a></li>
+            <li><a href="/users">Users</a></li>
+        </ul>
+    </header>
+    <main>
+        <h2>Find a movie:</h2>
+        <div id="movieSearch">
+            <label>Enter movie title: </label>
+            <input type="text" v-model="movieTitle" value="title" >
+            <input type="submit" v-on:click="findMovie" id="searchButton" value="search">
+            <div id="movieDetails" class="hidden">
+                <h3>Title: {{title}}</h3>
+                <p>Year: {{year}}</p>
+                <p>Runtime: {{runtime}}</p>
+                <p>Genre: {{genre}}</p>
+                <p>Actors: {{actors}}</p>
+                <p>Plot: {{plot}}</p>
+                <p>Imdb rating: {{imdbRating}}</p>
+                <input type="submit" v-on:click="chooseMovie" id="chooseButton" value="Choose movie">
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        let router = new VueRouter;
+        let movieView = new Vue({
+            router,
+            el: '#movieSearch',
+            data: {
+                movieTitle: "",
+                title: "",
+                year: "",
+                runtime: "",
+                genre: "",
+                actors: "",
+                plot: "",
+                imdbRating: ""
+            },
+            methods: {
+                findMovie(){
+                    let movie = this;
+                    router.push({path:'/'+this.movieTitle});
+                    axios.get('http://localhost:8080/movie/' + this.movieTitle)
+                        .then( response => {
+                            let data = response.data;
+                            console.log(data);
+                            movie.title = data.Title;
+                            movie.year = data.Year;
+                            movie.runtime = data.Runtime;
+                            movie.genre = data.Genre;
+                            movie.actors = data.Actors;
+                            movie.plot = data.Plot;
+                            movie.imdbRating = data.imdbRating;
+                            movie.movieTitle = "";
+                            document.getElementById('movieDetails').classList.remove('hidden');
+                            console.log(movie.runtime);
+                        })
+                        .catch(error => console.log(error));
+                },
+                chooseMovie(){
+                    alert(this.title);
+                }
+            }
+        });
+    </script>
+    <style>
+        .hidden{
+            display: none;
+        }
+    </style>
+</body>
+</html>

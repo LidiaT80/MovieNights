@@ -6,9 +6,7 @@ import com.example.demo.repositories.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
@@ -19,8 +17,8 @@ public class MovieController {
     private RestTemplate restTemplate = new RestTemplate();
     private final String REQUEST_URL = "http://www.omdbapi.com/?apikey=340a04c&t=";
 
-    @RequestMapping("/movie")
-    public ResponseEntity getMovie(@RequestParam String title){
+    @RequestMapping(value = "/movie/{title}", method = RequestMethod.GET)
+    public ResponseEntity getMovie(@PathVariable String title){
         Movie movie;
         if(movieDbHandler.isInDb(title, movieRepository))
             movie = movieDbHandler.findMovie(title, movieRepository);
