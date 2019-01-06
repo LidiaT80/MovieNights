@@ -16,7 +16,6 @@ public class MovieController {
     private MovieDbHandler movieDbHandler = new MovieDbHandler();
     private RestTemplate restTemplate = new RestTemplate();
     private final String REQUEST_URL = "http://www.omdbapi.com/?apikey=340a04c&t=";
-    private String chosenMovie;
 
     @RequestMapping(value = "/movie/{title}", method = RequestMethod.GET)
     public ResponseEntity getMovie(@PathVariable String title){
@@ -35,8 +34,7 @@ public class MovieController {
 
     @RequestMapping(value = "/movie/{title}/save", method = RequestMethod.POST)
     public ResponseEntity saveChosenMovie(@PathVariable String title){
-        chosenMovie = title;
-        System.out.println(chosenMovie);
+        movieDbHandler.setChosenMovie(title);
         return new ResponseEntity("Saved", HttpStatus.CREATED);
     }
 }

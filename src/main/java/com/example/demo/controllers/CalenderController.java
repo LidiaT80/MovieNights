@@ -3,9 +3,11 @@ package com.example.demo.controllers;
 import com.example.demo.models.Movie;
 import com.example.demo.models.Token;
 import com.example.demo.models.User;
+import com.example.demo.repositories.MovieRepository;
 import com.example.demo.repositories.TokenRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.utilities.CalenderHandler;
+import com.example.demo.utilities.MovieDbHandler;
 import com.example.demo.utilities.TokenHandler;
 import com.example.demo.utilities.UserDbHandler;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -37,10 +39,13 @@ public class CalenderController {
     UserRepository userRepository;
     @Autowired
     TokenRepository tokenRepository;
+    @Autowired
+    MovieRepository movieRepository;
 
     private UserDbHandler userDbHandler = new UserDbHandler();
     private CalenderHandler calenderHandler = new CalenderHandler();
     private TokenHandler tokenHandler = new TokenHandler();
+    private MovieDbHandler movieDbHandler = new MovieDbHandler();
 
     private final static Logger logger = LoggerFactory.getLogger(CalenderController.class);
     private static HttpTransport httpTransport;
@@ -154,7 +159,9 @@ public class CalenderController {
     }
 
     @RequestMapping(value = "/booking")
-    public ResponseEntity bookEvent(@RequestParam Movie movie, @RequestParam DateTime startDate){
+    public ResponseEntity bookEvent(@RequestParam DateTime startDate){
+        String movieTitle = movieDbHandler.getChosenMovie();
+        Movie movie = movieDbHandler.findMovie(movieTitle, movieRepository);
         calenderHandler.bookEvent(movie, startDate, tokenRepository);
         return new ResponseEntity(HttpStatus.CREATED);
     }

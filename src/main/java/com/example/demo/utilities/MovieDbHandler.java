@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 public class MovieDbHandler {
 
+    private String chosenMovie;
+
     public void saveToDb(Movie movie, MovieRepository movieRepository){
         movieRepository.save(movie);
     }
@@ -23,5 +25,13 @@ public class MovieDbHandler {
         List<Movie> movies = (List<Movie>) movieRepository.findAll();
         Movie movie = (movies.stream().filter(m -> m.getTitle().equalsIgnoreCase(title)).collect(Collectors.toList())).get(0);
         return movie;
+    }
+
+    public String getChosenMovie() {
+        return chosenMovie;
+    }
+
+    public void setChosenMovie(String chosenMovie) {
+        this.chosenMovie = chosenMovie;
     }
 }
