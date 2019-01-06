@@ -44,4 +44,10 @@ public class UserController {
         }
         return new ResponseEntity<>(newUser,HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/users/{name}/save", method = RequestMethod.POST)
+    public ResponseEntity saveChosenUsers(@PathVariable String name, @RequestBody List<String> userList){
+        userDbHandler.setChosenUsers(userList);
+        return new ResponseEntity("Saved", HttpStatus.CREATED);
+    }
 }

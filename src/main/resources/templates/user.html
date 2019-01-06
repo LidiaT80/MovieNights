@@ -26,6 +26,15 @@
                         Name: {{user.displayName}}, Email: {{user.email}}
                     </li>
                 </ul>
+                <div class="hidden" id="chosenList">
+                    <h3>Selected</h3>
+                    <ul>
+                        <li v-for="cUser in chosenUsers">
+                            {{cUser}}
+                        </li>
+                    </ul>
+                </div>
+                <input type="submit" id="chooseButton" v-on:click="chooseUsers">
             </div>
         </div>
     </main>
@@ -39,12 +48,15 @@
             el: '#userSearch',
             data: {
                 name: "",
-                users: []
+                users: [],
+                chosenUsers: [],
+                list: ""
             },
             methods: {
                 getAllUsers(){
                     let user = this;
                     router.push({path: '/all'});
+                    this.list = 'all';
                     axios.get('http://localhost:8080/users/all')
                         .then( response => {
                             user.users = response.data;
@@ -55,6 +67,7 @@
                 getUsersByName(){
                     let user = this;
                     router.push({path:'/' + user.name});
+                    this.list = user.name;
                     axios.get('http://localhost:8080/users/' + user.name)
                         .then( response => {
                             user.users = response.data;
@@ -63,8 +76,19 @@
                         .catch( error => console.log(error));
                 },
                 selectUser(user){
+                    document.getElementById('chosenList').classList.remove('hidden');
                     let userString = user.srcElement.textContent;
                     let email = userString.substring((userString.lastIndexOf(":")+2), userString.length);
+                    email = email.trim();
+                    this.chosenUsers.push(email);
+                },
+                chooseUsers(){
+                    router.push({path: '/save'});
+                    axios.post('http://localhost:8080/users/' + this.list + '/save', this.chosenUsers)
+                        .then( response => {
+                            alert(response.data);
+                        })
+                        .catch( error => alert(error));
                 },
                 addNewUser(){
 
