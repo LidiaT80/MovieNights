@@ -16,14 +16,16 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
     private UserDbHandler userDbHandler = new UserDbHandler();
+
     @JsonView(Views.Public.class)
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @RequestMapping(value = "/users/all", method = RequestMethod.GET)
     public ResponseEntity showUsers(){
         List<User> users = (List<User>) userRepository.findAll();
         if(users.size() == 0)
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
+
     @JsonView(Views.Public.class)
     @RequestMapping(value = "users/{name}")
     public ResponseEntity findUsersByName(@PathVariable("name") String name){

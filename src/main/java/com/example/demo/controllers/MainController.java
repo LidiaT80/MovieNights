@@ -16,5 +16,10 @@ public class MainController {
         return "movie";
     }
 
+    @RequestMapping(value = "/users")
+    public String getUserPage(){
+        return "user";
+    }
+
 
 }
