@@ -21,5 +21,10 @@ public class MainController {
         return "user";
     }
 
+    @RequestMapping(value = "/dates")
+    public String getDatePage(){
+        return "date";
+    }
+
 
 }

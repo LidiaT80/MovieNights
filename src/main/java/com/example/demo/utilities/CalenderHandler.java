@@ -118,7 +118,7 @@ public class CalenderHandler {
 
     public Event createNewEvent(Movie movie, DateTime dateTime){
         Event event = new Event();
-        event.setSummary(movie.getTitle());
+        event.setSummary("Movie night with: " + movie.getTitle());
         event.setStart(new EventDateTime().setDateTime(dateTime));
         DateTime end = new DateTime(dateTime.getValue()+calculateMovieRuntime(movie));
         event.setEnd(new EventDateTime().setDateTime(end));

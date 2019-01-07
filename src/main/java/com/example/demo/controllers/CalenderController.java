@@ -25,10 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.*;
@@ -52,6 +49,7 @@ public class CalenderController {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     private String userEmail;
+    private String chosenMovie;
 
     GoogleClientSecrets clientSecrets;
     GoogleAuthorizationCodeFlow flow;
@@ -153,17 +151,23 @@ public class CalenderController {
         return scopes;
     }
 
-    @RequestMapping(value = "/dates", method = RequestMethod.GET)
+    @RequestMapping(value = "/dates/all", method = RequestMethod.GET)
     public ResponseEntity<List<String>> getAvailableDates(){
         return new ResponseEntity<>(calenderHandler.getAvailableDates(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/book/movie/{title}", method = RequestMethod.POST)
+    public ResponseEntity bookMovie(@PathVariable String title){
+        chosenMovie = title;
+        return new ResponseEntity("Saved", HttpStatus.CREATED);
+    }
+
     @RequestMapping(value = "/booking")
-    public ResponseEntity bookEvent(@RequestParam DateTime startDate){
-        String movieTitle = movieDbHandler.getChosenMovie();
-        Movie movie = movieDbHandler.findMovie(movieTitle, movieRepository);
-        calenderHandler.bookEvent(movie, startDate, tokenRepository);
-        return new ResponseEntity(HttpStatus.CREATED);
+    public ResponseEntity bookEvent(@RequestParam String startDate){
+        Movie movie = movieDbHandler.findMovie(chosenMovie, movieRepository);
+        DateTime startDateTime = new DateTime(startDate + "T18:00:00.000");
+        calenderHandler.bookEvent(movie, startDateTime, tokenRepository);
+        return new ResponseEntity("Movie night booked", HttpStatus.CREATED);
     }
 
 }

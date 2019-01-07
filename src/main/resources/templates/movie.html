@@ -70,9 +70,7 @@
                         .catch(error => console.log(error));
                 },
                 chooseMovie(){
-                    console.log(this.title);
-                    router.push({path: '/save'});
-                    axios.post('http://localhost:8080/movie/' + this.title + '/save', this.title)
+                    axios.post('http://localhost:8080//book/movie/' + this.title , this.title)
                         .then( response => {
                             alert(response.data);
                         })

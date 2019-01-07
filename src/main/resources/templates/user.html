@@ -35,6 +35,7 @@
                     </ul>
                 </div>
                 <input type="submit" id="chooseButton" v-on:click="chooseUsers">
+                <button id="nextButton" class="hidden"><a href="/dates">Show available dates</a></button>
             </div>
         </div>
     </main>
@@ -81,6 +82,9 @@
                     let email = userString.substring((userString.lastIndexOf(":")+2), userString.length);
                     email = email.trim();
                     this.chosenUsers.push(email);
+                    axios.get('http://localhost:8080/userevents?email=' + email)
+                        .then( response => alert(response.status))
+                        .catch(error => alert(error));
                 },
                 chooseUsers(){
                     router.push({path: '/save'});
@@ -89,6 +93,8 @@
                             alert(response.data);
                         })
                         .catch( error => alert(error));
+                    document.getElementById('chooseButton').classList.add('hidden');
+                    document.getElementById('nextButton').classList.remove('hidden');
                 },
                 addNewUser(){
 

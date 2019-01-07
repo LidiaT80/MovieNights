@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Date</title>
+</head>
+<body>
+    <header>
+        <h1>Movie Nights</h1>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/movie">Movies</a></li>
+            <li><a href="/users">Users</a></li>
+        </ul>
+    </header>
+    <main>
+        <div id="datePage">
+            <h3>Available dates</h3>
+            <ul>
+                <li v-for="date in dates" v-on:click="selectDate">
+                    {{date}}
+                </li>
+            </ul>
+            <div id="selected" class="hidden">
+                <p>Selected date: {{chosenDate}}</p>
+                <input type="submit" value="confirm" v-on:click="chooseDate" id="chooseButton">
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        let router = new VueRouter;
+        let datesView = new Vue({
+            router,
+            el: '#datePage',
+            created(){
+                this.showDates();
+            },
+            data: {
+                dates : [],
+                chosenDate : ""
+            },
+            methods: {
+                showDates(){
+                    let date = this;
+                    axios.get('http://localhost:8080/dates/all')
+                        .then( response => {
+                            date.dates = response.data;
+                        })
+                        .catch( error => alert(error));
+                },
+                selectDate(date){
+                    this.chosenDate = date.srcElement.textContent.trim();
+                    document.getElementById('selected').classList.remove('hidden');
+                },
+                chooseDate(){
+                    axios.get('http://localhost:8080/booking?startDate=' + this.chosenDate)
+                        .then( response => {
+                            alert(response.data);
+                        })
+                        .catch( error => alert(error));
+                }
+            }
+        });
+    </script>
+    <style>
+        .hidden{
+            display: none;
+        }
+    </style>
+</body>
+</html>

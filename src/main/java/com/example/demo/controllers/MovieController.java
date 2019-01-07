@@ -32,9 +32,4 @@ public class MovieController {
         return new ResponseEntity<>(movie, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/movie/{title}/save", method = RequestMethod.POST)
-    public ResponseEntity saveChosenMovie(@PathVariable String title){
-        movieDbHandler.setChosenMovie(title);
-        return new ResponseEntity("Saved", HttpStatus.CREATED);
-    }
 }
