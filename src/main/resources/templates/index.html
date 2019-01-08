@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Movie Nights</title>
@@ -16,10 +16,56 @@
         </nav>
     </header>
     <main>
+        <div id="homePage">
+            <h3>New user:</h3>
+            <label>Name:</label>
+            <input type="text" v-model="name" placeholder="name"><br/>
+            <label>Email:</label>
+            <input type="text" v-model="email" placeholder="email"><br/>
+            <label>Password:</label>
+            <input type="text" v-model="password" placeholder="password">
+            <input type="submit" value="Register" v-on:click="registerUser">
+        </div>
 
     </main>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        let router = new VueRouter;
+        let homeView = new Vue({
+            router,
+            el: '#homePage',
+            data: {
+                name: '',
+                email: '',
+                password: ''
+            },
+            methods: {
+                registerUser(){
+                    let user = new UserFE( this.name, this.email, this.password);
+                    axios.post('http://localhost:8080/save-user', user)
+                        .then( response => {
+                            alert(response.data);
+                        })
+                        .catch( error => alert(error));
+                    this.name = '';
+                    this.email = '';
+                    this.password = '';
+                }
+            }
+        });
+
+        class UserFE{
+
+            constructor(displayName, email, password){
+                this.displayName = displayName;
+                this.email = email;
+                this.password = password;
+            }
+        }
+
+    </script>
 </body>
 </html>

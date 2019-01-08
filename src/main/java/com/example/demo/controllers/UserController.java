@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
     private UserDbHandler userDbHandler = new UserDbHandler();
+    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @JsonView(Views.Public.class)
     @RequestMapping(value = "/users/all", method = RequestMethod.GET)
@@ -27,7 +29,7 @@ public class UserController {
     }
 
     @JsonView(Views.Public.class)
-    @RequestMapping(value = "users/{name}")
+    @RequestMapping(value = "users/{name}", method = RequestMethod.GET)
     public ResponseEntity findUsersByName(@PathVariable("name") String name){
         List<User> users = userDbHandler.findUsersByName(userRepository, name);
         if(users.size() == 0)
@@ -35,14 +37,15 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
     @JsonView(Views.Public.class)
-    @RequestMapping(value = "/saveUser")
-    public ResponseEntity<User> saveUser(@RequestParam String name, @RequestParam String email, @RequestParam String password){
-        User newUser = new User(name, email, password);
-        if(!userDbHandler.isInDb(newUser, userRepository)){
-            userRepository.save(newUser);
-            return new ResponseEntity(newUser, HttpStatus.CREATED);
+    @RequestMapping(value = "/save-user", method = RequestMethod.POST)
+    public ResponseEntity saveUser(@RequestBody User user){
+        String password = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(password);
+        if(!userDbHandler.isInDb(user, userRepository)){
+            userRepository.save(user);
+            return new ResponseEntity("Registered new user", HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(newUser,HttpStatus.OK);
+        return new ResponseEntity<>("User account already exists",HttpStatus.OK);
     }
 
     @RequestMapping(value = "/users/{name}/save", method = RequestMethod.POST)
