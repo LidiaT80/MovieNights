@@ -70,7 +70,12 @@
                         .catch(error => console.log(error));
                 },
                 chooseMovie(){
-                    axios.post('http://localhost:8080//book/movie/' + this.title , this.title)
+                    let token = localStorage.getItem('token');
+                    console.log(token);
+                    axios({method: 'post', url: 'http://localhost:8080/book/movie/' + this.title , data: this.title, headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token
+                        }})
                         .then( response => {
                             alert(response.data);
                         })

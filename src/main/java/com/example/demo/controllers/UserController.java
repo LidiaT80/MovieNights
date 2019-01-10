@@ -37,7 +37,7 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
     @JsonView(Views.Public.class)
-    @RequestMapping(value = "/save-user", method = RequestMethod.POST)
+    @RequestMapping(value = "/new-user", method = RequestMethod.POST)
     public ResponseEntity saveUser(@RequestBody User user){
         String password = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(password);

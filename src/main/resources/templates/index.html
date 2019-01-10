@@ -17,14 +17,24 @@
     </header>
     <main>
         <div id="homePage">
-            <h3>New user:</h3>
-            <label>Name:</label>
-            <input type="text" v-model="name" placeholder="name"><br/>
-            <label>Email:</label>
-            <input type="text" v-model="email" placeholder="email"><br/>
-            <label>Password:</label>
-            <input type="text" v-model="password" placeholder="password">
-            <input type="submit" value="Register" v-on:click="registerUser">
+            <div>
+                <h3>Log in:</h3>
+                <label>Email:</label>
+                <input type="email" v-model="userEmail" placeholder="email" required><br/>
+                <label>Password:</label>
+                <input type="text" v-model="userPassword" placeholder="password" required><br/>
+                <input type="submit" value="Login" v-on:click="signInUser">
+            </div>
+            <div>
+                <h3>New user:</h3>
+                <label>Name:</label>
+                <input type="text" v-model="name" placeholder="name" required><br/>
+                <label>Email:</label>
+                <input type="email" v-model="email" placeholder="email" required><br/>
+                <label>Password:</label>
+                <input type="text" v-model="password" placeholder="password" required><br/>
+                <input type="submit" value="Register" v-on:click="registerUser">
+            </div>
         </div>
 
     </main>
@@ -38,6 +48,8 @@
             router,
             el: '#homePage',
             data: {
+                userEmail: '',
+                userPassword: '',
                 name: '',
                 email: '',
                 password: ''
@@ -45,7 +57,7 @@
             methods: {
                 registerUser(){
                     let user = new UserFE( this.name, this.email, this.password);
-                    axios.post('http://localhost:8080/save-user', user)
+                    axios.post('http://localhost:8080/new-user', user)
                         .then( response => {
                             alert(response.data);
                         })
@@ -53,6 +65,18 @@
                     this.name = '';
                     this.email = '';
                     this.password = '';
+                },
+                signInUser(){
+                    let login = new LoginData(this.userEmail, this.userPassword);
+                    axios.post('http://localhost:8080/login', login)
+                        .then( response => {
+                            let token = 'Bearer ' + response.data.accessToken.trim();
+                            localStorage.setItem('token', token);
+                            alert(response.data);
+                        })
+                        .catch( error => alert(error));
+                    this.userEmail = '';
+                    this.userPassword = '';
                 }
             }
         });
@@ -61,6 +85,14 @@
 
             constructor(displayName, email, password){
                 this.displayName = displayName;
+                this.email = email;
+                this.password = password;
+            }
+        }
+
+        class LoginData{
+
+            constructor(email, password){
                 this.email = email;
                 this.password = password;
             }
