@@ -17,15 +17,16 @@
     </header>
     <main>
         <div id="homePage">
-            <div>
+            <div id="loginForm">
                 <h3>Log in:</h3>
                 <label>Email:</label>
                 <input type="email" v-model="userEmail" placeholder="email" required><br/>
                 <label>Password:</label>
-                <input type="text" v-model="userPassword" placeholder="password" required><br/>
+                <input type="password" v-model="userPassword" placeholder="password" required><br/>
                 <input type="submit" value="Login" v-on:click="signInUser">
             </div>
-            <div>
+            <input type="submit" value="Logout" v-on:click="logout" id="logoutButton" class="hidden">
+            <div id="registerForm">
                 <h3>New user:</h3>
                 <label>Name:</label>
                 <input type="text" v-model="name" placeholder="name" required><br/>
@@ -72,32 +73,41 @@
                         .then( response => {
                             let token = 'Bearer ' + response.data.accessToken.trim();
                             localStorage.setItem('token', token);
-                            alert(response.data);
+                            alert(response.status + 'Logged in');
                         })
                         .catch( error => alert(error));
                     this.userEmail = '';
                     this.userPassword = '';
+                    document.getElementById('loginForm').classList.add('hidden');
+                    document.getElementById('registerForm').classList.add('hidden');
+                    document.getElementById('logoutButton').classList.remove('hidden');
+                },
+                logout(){
+                    localStorage.setItem('token', '');
+                    document.getElementById('loginForm').classList.remove('hidden');
+                    document.getElementById('registerForm').classList.remove('hidden');
+                    document.getElementById('logoutButton').classList.add('hidden');
                 }
             }
         });
-
         class UserFE{
-
             constructor(displayName, email, password){
                 this.displayName = displayName;
                 this.email = email;
                 this.password = password;
             }
         }
-
         class LoginData{
-
             constructor(email, password){
                 this.email = email;
                 this.password = password;
             }
         }
-
     </script>
+    <style>
+        .hidden{
+            display: none;
+        }
+    </style>
 </body>
 </html>
