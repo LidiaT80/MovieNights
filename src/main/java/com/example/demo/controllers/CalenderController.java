@@ -165,7 +165,7 @@ public class CalenderController {
     @RequestMapping(value = "/booking")
     public ResponseEntity bookEvent(@RequestParam String startDate){
         Movie movie = movieDbHandler.findMovie(chosenMovie, movieRepository);
-        DateTime startDateTime = new DateTime(startDate + "T18:00:00.000");
+        DateTime startDateTime = new DateTime(startDate + ":00.000");
         calenderHandler.bookEvent(movie, startDateTime, tokenRepository);
         return new ResponseEntity("Movie night booked", HttpStatus.CREATED);
     }

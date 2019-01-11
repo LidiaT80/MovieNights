@@ -47,18 +47,23 @@
         let userView = new Vue({
             router,
             el: '#userSearch',
+            created(){
+
+            },
             data: {
-                name: "",
+                name: '',
                 users: [],
                 chosenUsers: [],
-                list: ""
+                list: '',
+                token: ''
             },
             methods: {
                 getAllUsers(){
                     let user = this;
                     router.push({path: '/all'});
                     this.list = 'all';
-                    axios.get('http://localhost:8080/users/all')
+                    this.token = localStorage.getItem('token');
+                    axios.get('http://localhost:8080/users/all', {headers: {'Authorization': this.token}})
                         .then( response => {
                             user.users = response.data;
                             document.getElementById('userList').classList.remove('hidden');
@@ -69,7 +74,8 @@
                     let user = this;
                     router.push({path:'/' + user.name});
                     this.list = user.name;
-                    axios.get('http://localhost:8080/users/' + user.name)
+                    this.token = localStorage.getItem('token');
+                    axios.get('http://localhost:8080/users/' + user.name, {headers: {'Authorization': this.token}})
                         .then( response => {
                             user.users = response.data;
                             document.getElementById('userList').classList.remove('hidden');
@@ -82,13 +88,15 @@
                     let email = userString.substring((userString.lastIndexOf(":")+2), userString.length);
                     email = email.trim();
                     this.chosenUsers.push(email);
-                    axios.get('http://localhost:8080/userevents?email=' + email)
+                    this.token = localStorage.getItem('token');
+                    axios.get('http://localhost:8080/userevents?email=' + email, {headers: {'Authorization': this.token}})
                         .then( response => alert(response.status))
                         .catch(error => alert(error));
                 },
                 chooseUsers(){
                     router.push({path: '/save'});
-                    axios.post('http://localhost:8080/users/' + this.list + '/save', this.chosenUsers)
+                    this.token = localStorage.getItem('token');
+                    axios.post('http://localhost:8080/users/' + this.list + '/save', this.chosenUsers, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.data);
                         })

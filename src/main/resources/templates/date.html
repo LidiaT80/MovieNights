@@ -40,12 +40,14 @@
             },
             data: {
                 dates : [],
-                chosenDate : ""
+                chosenDate : '',
+                token: ''
             },
             methods: {
                 showDates(){
                     let date = this;
-                    axios.get('http://localhost:8080/dates/all')
+                    this.token = localStorage.getItem('token');
+                    axios.get('http://localhost:8080/dates/all', {headers: {'Authorization': this.token}})
                         .then( response => {
                             date.dates = response.data;
                         })
@@ -56,7 +58,8 @@
                     document.getElementById('selected').classList.remove('hidden');
                 },
                 chooseDate(){
-                    axios.get('http://localhost:8080/booking?startDate=' + this.chosenDate)
+                    this.token = localStorage.getItem('token');
+                    axios.get('http://localhost:8080/booking?startDate=' + this.chosenDate, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.data);
                         })

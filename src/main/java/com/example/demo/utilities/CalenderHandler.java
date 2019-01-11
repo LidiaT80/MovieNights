@@ -16,6 +16,9 @@ import com.google.api.services.calendar.model.EventDateTime;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 public class CalenderHandler {
@@ -44,62 +47,88 @@ public class CalenderHandler {
     }
 
     public List<String> getAvailableDates(){
-        List<String> unavailableDates = new ArrayList<>();
-        List<String> allDates = new ArrayList<>();
         List <String> availableDates = new ArrayList<>();
-        DateTime now;
-        DateTime threeWeeksfromNow;
-        DateTime startDate;
-        DateTime endDate;
-        for (List<Event> eventList: userEvents.values()) {
-            for (Event event: eventList) {
-                startDate = event.getStart().getDateTime();
-                endDate = event.getEnd().getDateTime();
-                addDatesToList(startDate, endDate, unavailableDates);
-            }
-        }
-        now = new DateTime(new Date());
-        threeWeeksfromNow = new DateTime(now.getValue()+21*MSEC_PER_DAY);
-        addDatesToList(now, threeWeeksfromNow, allDates);
-        for (String dateString: allDates) {
-            if(!unavailableDates.contains(dateString))
-                availableDates.add(dateString);
+        for (LocalDateTime localDateTime: getAvailableTimes()) {
+            availableDates.add(localDateTime.toString());
         }
         return availableDates;
     }
-
-    public void addDatesToList(DateTime start, DateTime end, List<String> dateList){
-        String startStr = getDateString(start);
-        String endStr = getDateString(end);
-        addDate(startStr, dateList);
-        if(!startStr.equals(endStr)){
-            List<DateTime> datesBetween= getDatesBetween(start, end);
-            for (DateTime date: datesBetween) {
-                addDate(getDateString(date), dateList);
-            }
-            addDate(endStr, dateList);
+    public List<LocalDateTime> getAvailableTimes(){
+        List<LocalDateTime> availableTimes = new ArrayList<>();
+        for (LocalDateTime time: getAllTimes()) {
+            if(!getUnavailableTimes().contains(time))
+                availableTimes.add(time);
         }
+        return availableTimes;
     }
 
-    public String getDateString(DateTime dateTime){
-        String dateString = dateTime.toString().substring(0, 10);
-        return dateString;
-    }
-
-    public void addDate(String dateString, List<String> dateTimeList){
-        if(!dateTimeList.contains(dateString))
-            dateTimeList.add(dateString);
-    }
-
-    public List<DateTime> getDatesBetween(DateTime startDate, DateTime endDate){
-        List<DateTime> datesBetween = new ArrayList<>();
-        Long interval = endDate.getValue()-startDate.getValue();
-        Long nrOfDays = interval/ MSEC_PER_DAY;
-        if(nrOfDays > 1){
-            for (int i = 1; i < nrOfDays; i++) {
-                datesBetween.add(new DateTime(startDate.getValue()+i* MSEC_PER_DAY));
+    public List<LocalDateTime> getAllTimes(){
+        LocalDate today = LocalDate.now();
+        int nrOfDays = 14;
+        List<LocalDateTime> allTimes = new ArrayList<>();
+        for (int i = 0; i < nrOfDays; i++) {
+            for (int j = 18; j < 22; j++) {
+                allTimes.add(LocalDateTime.of(today.plusDays(i), LocalTime.of(j, 0)));
             }
         }
+        return allTimes;
+    }
+
+    public List<LocalDateTime> getUnavailableTimes(){
+        List<LocalDateTime> unavailableTimes = new ArrayList<>();
+        DateTime startDateTime;
+        DateTime endDateTime;
+        LocalDateTime localStartDateTime;
+        LocalDateTime localEndDateTime;
+        LocalDate localStartDate;
+        LocalDate localEndDate;
+        for (List<Event> eventList: userEvents.values()) {
+            for (Event event: eventList) {
+                startDateTime = event.getStart().getDateTime();
+                endDateTime = event.getEnd().getDateTime();
+                localStartDateTime = getLocal(startDateTime);
+                localStartDate = localStartDateTime.toLocalDate();
+                localEndDateTime = getLocal(endDateTime);
+                localEndDate = localEndDateTime.toLocalDate();
+                if(!localEndDate.equals(localStartDate)) {
+                    int startHour = localStartDateTime.getHour();
+                    if(startHour < 21)
+                        for (int i = 18; i < 22; i++) {
+                            unavailableTimes.add(LocalDateTime.of(localStartDate, LocalTime.of(i, 0)));
+                        }
+                        if(startHour >= 21)
+                            for (int i = 19; i < 22; i++) {
+                                unavailableTimes.add(LocalDateTime.of(localStartDate, LocalTime.of(i, 0)));
+                            }
+                    for (LocalDate date: getDatesBetween(localStartDate, localEndDate)) {
+                        for (int i = 18; i < 22; i++) {
+                            unavailableTimes.add(LocalDateTime.of(date, LocalTime.of(i, 0)));
+                        }
+                    }
+                }
+                if(localEndDateTime.getHour() >= 18){
+                    for (int i = 18; i < localEndDateTime.getHour()+1 && i < 22; i++) {
+                        unavailableTimes.add(LocalDateTime.of(localEndDate, LocalTime.of(i, 0)));
+                    }
+                }
+            }
+        }
+        return unavailableTimes;
+    }
+
+    public LocalDateTime getLocal(DateTime dateTime){
+        return LocalDateTime.parse(
+                dateTime.toString().substring(0, dateTime.toString().indexOf("."))
+        );
+    }
+
+    public List<LocalDate> getDatesBetween(LocalDate startDate, LocalDate endDate){
+        List<LocalDate> datesBetween = new ArrayList<>();
+        int interval = endDate.getDayOfYear()-startDate.getDayOfYear();
+        int nrOfDaysBetween = interval-1;
+            for (int i = 1; i <= nrOfDaysBetween; i++) {
+                datesBetween.add(startDate.plusDays(1));
+            }
         return datesBetween;
     }
 

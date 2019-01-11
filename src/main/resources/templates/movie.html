@@ -28,7 +28,7 @@
                 <p>Plot: {{plot}}</p>
                 <p>Imdb rating: {{imdbRating}}</p>
                 <input type="submit" v-on:click="chooseMovie" id="chooseButton" value="Choose movie">
-                <button class="hidden" id="nextButton"><a href="/users">Find friends</a></button>
+                <input type="submit" class="hidden" id="nextButton" v-on:click="goToUserPage" value="Find friends">
             </div>
         </div>
     </main>
@@ -41,14 +41,15 @@
             router,
             el: '#movieSearch',
             data: {
-                movieTitle: "",
-                title: "",
-                year: "",
-                runtime: "",
-                genre: "",
-                actors: "",
-                plot: "",
-                imdbRating: ""
+                movieTitle: '',
+                title: '',
+                year: '',
+                runtime: '',
+                genre: '',
+                actors: '',
+                plot: '',
+                imdbRating: '',
+                token: ''
             },
             methods: {
                 findMovie(){
@@ -70,18 +71,22 @@
                         .catch(error => console.log(error));
                 },
                 chooseMovie(){
-                    let token = localStorage.getItem('token');
-                    console.log(token);
-                    axios({method: 'post', url: 'http://localhost:8080/book/movie/' + this.title , data: this.title, headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': token
-                        }})
+                    this.token = localStorage.getItem('token');
+                    axios.post('http://localhost:8080/book/movie/' + this.title , this.title, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.data);
                         })
                         .catch( error => alert(error));
                     document.getElementById('chooseButton').classList.add('hidden');
                     document.getElementById('nextButton').classList.remove('hidden');
+                },
+                goToUserPage(){
+                    this.token = localStorage.getItem('token');
+                    axios.get('http://localhost:8080/users', {headers: {'Authorization': this.token}})
+                        .then( response => console.log(response))
+                        .catch( error => alert(error));
+                    console.log('hello')
+
                 }
             }
         });
