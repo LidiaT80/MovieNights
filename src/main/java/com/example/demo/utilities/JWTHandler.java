@@ -26,13 +26,12 @@ public class JWTHandler {
 
     public String generateToken(Authentication authentication, HttpServletResponse response){
 
-        UserDetails userPrincipal = (User) authentication.getPrincipal();
-
+        UserDetails userDetails = (User) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime()+jwtExpirationInMs);
 
         String token = JWT.create()
-                .withSubject(userPrincipal.getUsername())
+                .withSubject(userDetails.getUsername())
                 .withExpiresAt(expiryDate)
                 .sign(Algorithm.HMAC512(jwtSecret.getBytes()));
         response.addHeader("Authorization", "Bearer " + token);

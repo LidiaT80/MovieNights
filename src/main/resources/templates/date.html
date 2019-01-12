@@ -66,7 +66,7 @@
                     this.token = localStorage.getItem('token');
                     axios.post('http://localhost:8080/booking?startDate=' + this.chosenDate, {headers: {'Authorization': this.token}})
                         .then( response => {
-                            alert(response.data);
+                            alert(response.status + ': ' + response.data);
                         })
                         .catch( error => {
                             if(error.message == 'Request failed with status code 403')
