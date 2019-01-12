@@ -31,12 +31,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader("Authorization");
-
         if (header ==  null) {
             chain.doFilter(request,response);
             return;
         }
-
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request,response);

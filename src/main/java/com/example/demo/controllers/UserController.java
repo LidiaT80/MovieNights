@@ -24,7 +24,7 @@ public class UserController {
     public ResponseEntity showUsers(){
         List<User> users = (List<User>) userRepository.findAll();
         if(users.size() == 0)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -33,7 +33,7 @@ public class UserController {
     public ResponseEntity findUsersByName(@PathVariable("name") String name){
         List<User> users = userDbHandler.findUsersByName(userRepository, name);
         if(users.size() == 0)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
     @JsonView(Views.Public.class)

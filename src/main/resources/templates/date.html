@@ -10,7 +10,7 @@
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/movie">Movies</a></li>
-            <li><a href="/users">Users</a></li>
+            <li><a href="/user">Users</a></li>
         </ul>
     </header>
     <main>
@@ -51,7 +51,12 @@
                         .then( response => {
                             date.dates = response.data;
                         })
-                        .catch( error => alert(error));
+                        .catch( error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        });
                 },
                 selectDate(date){
                     this.chosenDate = date.srcElement.textContent.trim();
@@ -59,11 +64,16 @@
                 },
                 chooseDate(){
                     this.token = localStorage.getItem('token');
-                    axios.get('http://localhost:8080/booking?startDate=' + this.chosenDate, {headers: {'Authorization': this.token}})
+                    axios.post('http://localhost:8080/booking?startDate=' + this.chosenDate, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.data);
                         })
-                        .catch( error => alert(error));
+                        .catch( error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        });
                 }
             }
         });

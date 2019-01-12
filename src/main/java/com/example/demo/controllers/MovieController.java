@@ -28,7 +28,7 @@ public class MovieController {
             movieDbHandler.saveToDb(movie, movieRepository);
         }
         if(movie == null)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(movie, HttpStatus.OK);
     }
 

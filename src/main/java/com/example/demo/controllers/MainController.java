@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,12 +18,12 @@ public class MainController {
         return "movie";
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
     public String getUserPage(){
         return "user";
     }
 
-    @RequestMapping(value = "/dates", method = RequestMethod.GET)
+    @RequestMapping(value = "/date", method = RequestMethod.GET)
     public String getDatePage(){
         return "date";
     }

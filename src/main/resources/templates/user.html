@@ -10,7 +10,7 @@
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/movie">Movies</a></li>
-            <li><a href="/users">Users</a></li>
+            <li><a href="/user">Users</a></li>
         </ul>
     </header>
     <main>
@@ -34,8 +34,8 @@
                         </li>
                     </ul>
                 </div>
-                <input type="submit" id="chooseButton" v-on:click="chooseUsers">
-                <button id="nextButton" class="hidden"><a href="/dates">Show available dates</a></button>
+                <input type="submit" id="chooseButton" v-on:click="chooseUsers" value="Confirm">
+                <button id="nextButton" class="hidden"><a href="/date">Show available dates</a></button>
             </div>
         </div>
     </main>
@@ -59,6 +59,7 @@
             },
             methods: {
                 getAllUsers(){
+                    console.log(localStorage.getItem('token'));
                     let user = this;
                     router.push({path: '/all'});
                     this.list = 'all';
@@ -68,7 +69,12 @@
                             user.users = response.data;
                             document.getElementById('userList').classList.remove('hidden');
                         })
-                        .catch( error => console.log(error));
+                        .catch( error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        });
                 },
                 getUsersByName(){
                     let user = this;
@@ -80,7 +86,12 @@
                             user.users = response.data;
                             document.getElementById('userList').classList.remove('hidden');
                         })
-                        .catch( error => console.log(error));
+                        .catch( error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        });
                 },
                 selectUser(user){
                     document.getElementById('chosenList').classList.remove('hidden');
@@ -90,17 +101,27 @@
                     this.chosenUsers.push(email);
                     this.token = localStorage.getItem('token');
                     axios.get('http://localhost:8080/userevents?email=' + email, {headers: {'Authorization': this.token}})
-                        .then( response => alert(response.status))
-                        .catch(error => alert(error));
+                        .then( response => alert(response.status + ": Selected user: " + email))
+                        .catch(error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        });
                 },
                 chooseUsers(){
                     router.push({path: '/save'});
                     this.token = localStorage.getItem('token');
                     axios.post('http://localhost:8080/users/' + this.list + '/save', this.chosenUsers, {headers: {'Authorization': this.token}})
                         .then( response => {
-                            alert(response.data);
+                            alert(response.status + ': ' + response.data);
                         })
-                        .catch( error => alert(error));
+                        .catch( error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        });
                     document.getElementById('chooseButton').classList.add('hidden');
                     document.getElementById('nextButton').classList.remove('hidden');
                 }

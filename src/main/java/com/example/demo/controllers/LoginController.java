@@ -4,6 +4,7 @@ import com.example.demo.models.JwtAuthenticationResponse;
 import com.example.demo.models.LoginData;
 import com.example.demo.utilities.JWTHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +33,6 @@ public class LoginController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtHandler.generateToken(authentication, response);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        return new ResponseEntity (new JwtAuthenticationResponse(jwt), HttpStatus.OK);
     }
 }

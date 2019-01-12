@@ -156,13 +156,13 @@ public class CalenderController {
         return new ResponseEntity<>(calenderHandler.getAvailableDates(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/book/movie/{title}", method = RequestMethod.POST)
+    @RequestMapping(value = "/booking/movie/{title}", method = RequestMethod.POST)
     public ResponseEntity bookMovie(@PathVariable String title){
         chosenMovie = title;
-        return new ResponseEntity("Saved", HttpStatus.CREATED);
+        return new ResponseEntity("Booked movie: " + title, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/booking")
+    @RequestMapping(value = "/booking", method = RequestMethod.POST)
     public ResponseEntity bookEvent(@RequestParam String startDate){
         Movie movie = movieDbHandler.findMovie(chosenMovie, movieRepository);
         DateTime startDateTime = new DateTime(startDate + ":00.000");
