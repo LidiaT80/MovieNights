@@ -99,7 +99,7 @@
                     email = email.trim();
                     this.chosenUsers.push(email);
                     this.token = localStorage.getItem('token');
-                    axios.get('http://localhost:8080/userevents?email=' + email, {headers: {'Authorization': this.token}})
+                    axios.get('http://localhost:8080/events?email=' + email, {headers: {'Authorization': this.token}})
                         .then( response => alert(response.status + ": Selected user: " + email))
                         .catch(error => {
                             if(error.message == 'Request failed with status code 403')

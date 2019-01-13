@@ -2,6 +2,7 @@ package com.example.demo.utilities;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,10 +40,15 @@ public class JWTHandler {
     }
 
     public String validateToken(String token){
-
-        return JWT.require(Algorithm.HMAC512(jwtSecret.getBytes()))
-                .build()
-                .verify(token.replace("Bearer ",""))
-                .getSubject();
+        try {
+            String tokenUser = JWT.require(Algorithm.HMAC512(jwtSecret.getBytes()))
+                    .build()
+                    .verify(token.replace("Bearer ",""))
+                    .getSubject();
+            return tokenUser;
+        }catch (TokenExpiredException e){
+            System.out.println("Token expired");
+        }
+        return null;
     }
 }

@@ -30,8 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     RequestDetailsRepository requestDetailsRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -40,17 +38,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String reqURI = request.getRequestURI();
         String ip = request.getRemoteAddr();
         Long time = new DateTime(new Date()).getValue();
-        String user;
+        String user = "guest";
         String header = request.getHeader("Authorization");
         if (header ==  null) {
             chain.doFilter(request,response);
             respStatus = response.getStatus();
-            user = "guest";
             requestDetailsRepository.save(new RequestDetails(reqMethod, reqURI, ip, user, time, respStatus));
             return;
         }
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
-        user = authentication.getName();
+        if(authentication != null)
+            user = authentication.getName();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request,response);
         respStatus = response.getStatus();

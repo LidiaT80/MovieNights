@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RestController
@@ -63,29 +65,16 @@ public class CalenderController {
     @Value("${google.client.scope}")
     private String scope;
 
-    @RequestMapping(value = "/userevents", method = RequestMethod.GET, params = "email")
-    public RedirectView getCalenderWithParam(@RequestParam String email){
-        RedirectView redirectView;
+    @RequestMapping(value = "/events", method = RequestMethod.GET, params = "email")
+    public ResponseEntity getEventsWithParam(@RequestParam String email, HttpServletResponse servletResponse) throws Exception {
         User user = userDbHandler.findUserByEmail(userRepository, email);
         if (tokenHandler.hasToken(user, tokenRepository)){
-            redirectView = new RedirectView("/events");
-            redirectView.setPropagateQueryParams(true);
-            return redirectView;
+            List<Event> response = calenderHandler.getEvents(user, tokenRepository);
+            return new ResponseEntity(response, HttpStatus.OK);
         }else {
-            return new RedirectView("/calender");
+            servletResponse.sendRedirect(authorize());
+            return new ResponseEntity(HttpStatus.OK);
         }
-    }
-
-    @RequestMapping(value = "/userevents", method = RequestMethod.GET)
-    public RedirectView getCalender(){
-        return new RedirectView("/events");
-    }
-
-    @RequestMapping(value = "/events", method = RequestMethod.GET, params = "email")
-    public ResponseEntity<List<Event>> getEventsWithParam(@RequestParam String email){
-        User user = userDbHandler.findUserByEmail(userRepository, email);
-        List<Event> response = calenderHandler.getEvents(user, tokenRepository);
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/events", method = RequestMethod.GET)
@@ -95,13 +84,15 @@ public class CalenderController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/calender", method = RequestMethod.GET)
     public RedirectView googleConnectionStatus() throws Exception {
         return new RedirectView(authorize());
     }
 
-    @RequestMapping(value = "/calender", method = RequestMethod.GET, params = "code")
-    public RedirectView oauth2Callback(@RequestParam(value = "code") String code) {
+    @CrossOrigin
+    @RequestMapping(value = "/calender", params = "code")
+    public RedirectView oauth2Callback(@RequestParam(value = "code") String code){
         TokenResponse response = null;
         String userId = null;
         String accessToken;
@@ -122,9 +113,8 @@ public class CalenderController {
         Token token = new Token(userId, accessToken, refreshToken, expiresAt);
         token.setUser(user);
         tokenRepository.save(token);
-        return new RedirectView("/userevents");
+        return new RedirectView("/events");
     }
-
 
     private String authorize() throws Exception {
         AuthorizationCodeRequestUrl authorizationUrl;
