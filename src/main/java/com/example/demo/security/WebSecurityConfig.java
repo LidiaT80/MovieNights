@@ -52,7 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL, SIGN_IN_URL).permitAll()
-                .antMatchers(HttpMethod.GET, "/", MOVIES_URL, "/user", "/date", "/favicon.ico").permitAll()
+                .antMatchers(HttpMethod.GET, "/", MOVIES_URL, "/user", "/date", "/favicon.ico", "/calender/**").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated().and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

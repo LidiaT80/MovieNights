@@ -1,12 +1,16 @@
 package com.example.demo.controllers;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 public class MainController {
+    @Autowired
+    CalenderController calenderController;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String getHomePage(){
@@ -24,7 +28,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/date", method = RequestMethod.GET)
-    public String getDatePage(){
+    public String getDatePage(HttpServletResponse servletResponse) throws Exception {
+        calenderController.getCalEvents(servletResponse);
         return "date";
     }
 

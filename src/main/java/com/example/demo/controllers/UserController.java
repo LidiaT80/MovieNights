@@ -47,10 +47,4 @@ public class UserController {
         }
         return new ResponseEntity<>("User account already exists",HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/users/{name}/save", method = RequestMethod.POST)
-    public ResponseEntity saveChosenUsers(@PathVariable String name, @RequestBody List<String> userList){
-        userDbHandler.setChosenUsers(userList);
-        return new ResponseEntity("Saved", HttpStatus.CREATED);
-    }
 }

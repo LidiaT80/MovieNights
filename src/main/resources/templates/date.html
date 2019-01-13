@@ -64,7 +64,7 @@
                 },
                 chooseDate(){
                     this.token = localStorage.getItem('token');
-                    axios.post('http://localhost:8080/booking?startDate=' + this.chosenDate, {headers: {'Authorization': this.token}})
+                    axios.post('http://localhost:8080/booking?startDate=' + this.chosenDate, this.chosenDate, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.status + ': ' + response.data);
                         })

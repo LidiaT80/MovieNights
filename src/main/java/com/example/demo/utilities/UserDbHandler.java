@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 public class UserDbHandler {
 
-    private List<String> chosenUsers;
-
     public boolean isInDb(User user, UserRepository userRepository){
         List<User> users = (List<User>) userRepository.findAll();
         if(users.stream().anyMatch(user1 -> user1.getEmail().equalsIgnoreCase(user.getEmail())))
@@ -29,13 +27,5 @@ public class UserDbHandler {
         User user = users.stream()
                     .filter(user1 -> user1.getEmail().equalsIgnoreCase(email)).collect(Collectors.toList()).get(0);
         return user;
-    }
-
-    public List<String> getChosenUsers() {
-        return chosenUsers;
-    }
-
-    public void setChosenUsers(List<String> chosenUsers) {
-        this.chosenUsers = chosenUsers;
     }
 }

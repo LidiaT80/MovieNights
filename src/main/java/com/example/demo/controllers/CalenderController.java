@@ -18,7 +18,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
@@ -52,6 +49,7 @@ public class CalenderController {
 
     private String userEmail;
     private String chosenMovie;
+    private List<String> chosenUsers;
 
     GoogleClientSecrets clientSecrets;
     GoogleAuthorizationCodeFlow flow;
@@ -65,33 +63,19 @@ public class CalenderController {
     @Value("${google.client.scope}")
     private String scope;
 
-    @RequestMapping(value = "/events", method = RequestMethod.GET, params = "email")
-    public ResponseEntity getEventsWithParam(@RequestParam String email, HttpServletResponse servletResponse) throws Exception {
-        User user = userDbHandler.findUserByEmail(userRepository, email);
-        if (tokenHandler.hasToken(user, tokenRepository)){
-            List<Event> response = calenderHandler.getEvents(user, tokenRepository);
-            return new ResponseEntity(response, HttpStatus.OK);
-        }else {
-            servletResponse.sendRedirect(authorize());
-            return new ResponseEntity(HttpStatus.OK);
+    public void getCalEvents (HttpServletResponse servletResponse) throws Exception {
+        for (String email: chosenUsers) {
+            User user = userDbHandler.findUserByEmail(userRepository, email);
+            if (tokenHandler.hasToken(user, tokenRepository)){
+                calenderHandler.getEvents(user, tokenRepository);
+            }else {
+                servletResponse.sendRedirect(authorize());
+            }
         }
     }
 
-    @RequestMapping(value = "/events", method = RequestMethod.GET)
-    public ResponseEntity<List<Event>> getEvents(){
-        User user = userDbHandler.findUserByEmail(userRepository, userEmail);
-        List<Event> response = calenderHandler.getEvents(user, tokenRepository);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @CrossOrigin
-    @RequestMapping(value = "/calender", method = RequestMethod.GET)
-    public RedirectView googleConnectionStatus() throws Exception {
-        return new RedirectView(authorize());
-    }
-
-    @CrossOrigin
-    @RequestMapping(value = "/calender", params = "code")
+    @RequestMapping(value = "/calender", params = "code", method = RequestMethod.GET)
     public RedirectView oauth2Callback(@RequestParam(value = "code") String code){
         TokenResponse response = null;
         String userId = null;
@@ -113,7 +97,8 @@ public class CalenderController {
         Token token = new Token(userId, accessToken, refreshToken, expiresAt);
         token.setUser(user);
         tokenRepository.save(token);
-        return new RedirectView("/events");
+        calenderHandler.getEvents(user, tokenRepository);
+        return new RedirectView("/date");
     }
 
     private String authorize() throws Exception {
@@ -150,6 +135,12 @@ public class CalenderController {
     public ResponseEntity bookMovie(@PathVariable String title){
         chosenMovie = title;
         return new ResponseEntity("Booked movie: " + title, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/booking/users", method = RequestMethod.POST)
+    public ResponseEntity saveChosenUsers(@RequestBody List<String> userList){
+        chosenUsers = userList;
+        return new ResponseEntity("Saved", HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/booking", method = RequestMethod.POST)

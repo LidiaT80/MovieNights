@@ -98,7 +98,7 @@
                     let email = userString.substring((userString.lastIndexOf(":")+2), userString.length);
                     email = email.trim();
                     this.chosenUsers.push(email);
-                    this.token = localStorage.getItem('token');
+               /*     this.token = localStorage.getItem('token');
                     axios.get('http://localhost:8080/events?email=' + email, {headers: {'Authorization': this.token}})
                         .then( response => alert(response.status + ": Selected user: " + email))
                         .catch(error => {
@@ -106,12 +106,11 @@
                                 alert('You must log in');
                             else
                                 console.log(error);
-                        });
+                        });*/
                 },
                 chooseUsers(){
-                    router.push({path: '/save'});
                     this.token = localStorage.getItem('token');
-                    axios.post('http://localhost:8080/users/' + this.list + '/save', this.chosenUsers, {headers: {'Authorization': this.token}})
+                    axios.post('http://localhost:8080/booking/users/', this.chosenUsers, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.status + ': ' + response.data);
                         })
