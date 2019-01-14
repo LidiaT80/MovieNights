@@ -7,23 +7,32 @@
 <body>
     <header>
         <h1>Movie Nights</h1>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/movie">Movies</a></li>
-            <li><a href="/user">Users</a></li>
-        </ul>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/movie">Find a movie</a></li>
+                <li><a href="/user">Find friends</a></li>
+                <li><a href="/date">Find available time</a> </li>
+            </ul>
+        </nav>
     </header>
     <main>
         <div id="datePage">
-            <h3>Available dates</h3>
-            <ul>
-                <li v-for="date in dates" v-on:click="selectDate">
-                    {{date}}
-                </li>
-            </ul>
-            <div id="selected" class="hidden">
-                <p>Selected date: {{chosenDate}}</p>
-                <input type="submit" value="confirm" v-on:click="chooseDate" id="chooseButton">
+            <div>
+                <h3>Available dates</h3>
+                <ul>
+                    <li v-for="date in dates" v-on:click="selectDate">
+                        {{date}}
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <div id="selected" class="hidden">
+                    <p>Selected date: {{chosenDate}}</p>
+                    <input type="submit" value="Book date" v-on:click="chooseDate" id="chooseButton">
+                </div>
+                <input type="submit" value="Change date" v-on:click="changeDate" id="changeButton" class="hidden">
+                <input type="submit" value="Book event" v-on:click="bookEvent" id="bookButton">
             </div>
         </div>
     </main>
@@ -49,7 +58,11 @@
                     this.token = localStorage.getItem('token');
                     axios.get('http://localhost:8080/dates/all', {headers: {'Authorization': this.token}})
                         .then( response => {
-                            date.dates = response.data;
+                            if(response.status == 204){
+                                alert('You must select users first');
+                            }else{
+                                date.dates = response.data;
+                            }
                         })
                         .catch( error => {
                             if(error.message == 'Request failed with status code 403')
@@ -64,9 +77,11 @@
                 },
                 chooseDate(){
                     this.token = localStorage.getItem('token');
-                    axios.post('http://localhost:8080/booking?startDate=' + this.chosenDate, this.chosenDate, {headers: {'Authorization': this.token}})
+                    axios.post('http://localhost:8080/booking/dates/' + this.chosenDate, this.chosenDate, {headers: {'Authorization': this.token}})
                         .then( response => {
                             alert(response.status + ': ' + response.data);
+                            document.getElementById('chooseButton').classList.add('hidden');
+                            document.getElementById('changeButton').classList.remove('hidden');
                         })
                         .catch( error => {
                             if(error.message == 'Request failed with status code 403')
@@ -74,6 +89,27 @@
                             else
                                 console.log(error);
                         });
+                },
+                changeDate(){
+                    this.chosenDate = '';
+                    document.getElementById('chooseButton').classList.remove('hidden');
+                    document.getElementById('changeButton').classList.add('hidden');
+                },
+                bookEvent(){
+                    this.token = localStorage.getItem('token');
+                    axios.post('http://localhost:8080/booking', null, {headers: {'Authorization': this.token}})
+                        .then( response => {
+                            alert(response.status + ': ' + response.data)
+                            if ( response.status == 200){
+                                document.getElementById('bookButton').classList.add('hidden');
+                            }
+                        })
+                        .catch( error => {
+                            if(error.message == 'Request failed with status code 403')
+                                alert('You must log in');
+                            else
+                                console.log(error);
+                        })
                 }
             }
         });
@@ -81,6 +117,20 @@
     <style>
         .hidden{
             display: none;
+        }
+        h1{
+            text-align: center;
+        }
+        nav ul{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            list-style-type: none;
+        }
+        #datePage{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
         }
     </style>
 </body>

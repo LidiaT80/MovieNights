@@ -7,11 +7,14 @@
 <body>
     <header>
         <h1>Movie Nights</h1>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/movie">Movies</a></li>
-            <li><a href="/user">Users</a></li>
-        </ul>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/movie">Find a movie</a></li>
+                <li><a href="/user">Find friends</a></li>
+                <li><a href="/date">Find available time</a> </li>
+            </ul>
+        </nav>
     </header>
     <main>
         <h2>Find a movie:</h2>
@@ -27,9 +30,9 @@
                 <p>Actors: {{actors}}</p>
                 <p>Plot: {{plot}}</p>
                 <p>Imdb rating: {{imdbRating}}</p>
-                <input type="submit" v-on:click="chooseMovie" id="chooseButton" value="Choose movie">
-                <button class="hidden" id="nextButton"><a href="/user">Find friends</a></button>
+                <input type="submit" v-on:click="chooseMovie" id="chooseButton" value="Select movie">
             </div>
+            <input type="submit" v-on:click="changeMovie" id="changeButton" value="Change booking" class="hidden">
         </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -76,7 +79,7 @@
                         .then( response => {
                             alert(response.status + ': ' + response.data);
                             document.getElementById('chooseButton').classList.add('hidden');
-                            document.getElementById('nextButton').classList.remove('hidden');
+                            document.getElementById('changeButton').classList.remove('hidden');
                         })
                         .catch( error => {
                             if(error.message == 'Request failed with status code 403')
@@ -85,12 +88,25 @@
                                 console.log(error);
                         });
                 },
+                changeMovie(){
+                    document.getElementById('chooseButton').classList.remove('hidden');
+                    document.getElementById('changeButton').classList.add('hidden');
+                }
             }
         });
     </script>
     <style>
         .hidden{
             display: none;
+        }
+        h1{
+            text-align: center;
+        }
+        nav ul{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            list-style-type: none;
         }
     </style>
 </body>

@@ -29,7 +29,8 @@ public class MainController {
 
     @RequestMapping(value = "/date", method = RequestMethod.GET)
     public String getDatePage(HttpServletResponse servletResponse) throws Exception {
-        calenderController.getCalEvents(servletResponse);
+        if(calenderController.getChosenUsers() != null)
+            calenderController.getCalEvents(servletResponse);
         return "date";
     }
 

@@ -7,18 +7,25 @@
 <body>
     <header>
         <h1>Movie Nights</h1>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/movie">Movies</a></li>
-            <li><a href="/user">Users</a></li>
-        </ul>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/movie">Find a movie</a></li>
+                <li><a href="/user">Find friends</a></li>
+                <li><a href="/date">Find available time</a> </li>
+            </ul>
+        </nav>
     </header>
     <main>
         <div id="userSearch">
-            <label>Enter name to search  for:</label>
-            <input type="text" v-model="name">
-            <input type="submit" v-on:click="getUsersByName" value="Search"><br/>
-            <input type="submit" v-on:click="getAllUsers" value="Show all users">
+            <div class="rowClass">
+                <div>
+                    <label>Enter name to search  for:</label>
+                    <input type="text" v-model="name">
+                    <input type="submit" v-on:click="getUsersByName" value="Search"><br/>
+                </div>
+                <input type="submit" v-on:click="getAllUsers" value="Show all users">
+            </div>
             <div class="hidden" id="userList">
                 <h2>Users:</h2>
                 <ul>
@@ -35,7 +42,6 @@
                     </ul>
                 </div>
                 <input type="submit" id="chooseButton" v-on:click="chooseUsers" value="Confirm">
-                <button id="nextButton" class="hidden"><a href="/date">Show available dates</a></button>
             </div>
         </div>
     </main>
@@ -98,15 +104,6 @@
                     let email = userString.substring((userString.lastIndexOf(":")+2), userString.length);
                     email = email.trim();
                     this.chosenUsers.push(email);
-               /*     this.token = localStorage.getItem('token');
-                    axios.get('http://localhost:8080/events?email=' + email, {headers: {'Authorization': this.token}})
-                        .then( response => alert(response.status + ": Selected user: " + email))
-                        .catch(error => {
-                            if(error.message == 'Request failed with status code 403')
-                                alert('You must log in');
-                            else
-                                console.log(error);
-                        });*/
                 },
                 chooseUsers(){
                     this.token = localStorage.getItem('token');
@@ -121,7 +118,6 @@
                                 console.log(error);
                         });
                     document.getElementById('chooseButton').classList.add('hidden');
-                    document.getElementById('nextButton').classList.remove('hidden');
                 }
             }
         });
@@ -129,6 +125,20 @@
     <style>
         .hidden{
             display: none;
+        }
+        h1{
+            text-align: center;
+        }
+        nav ul{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            list-style-type: none;
+        }
+        .rowClass{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
         }
     </style>
 </body>

@@ -41,7 +41,6 @@ public class CalenderController {
     private UserDbHandler userDbHandler = new UserDbHandler();
     private CalenderHandler calenderHandler = new CalenderHandler();
     private TokenHandler tokenHandler = new TokenHandler();
-    private MovieDbHandler movieDbHandler = new MovieDbHandler();
 
     private final static Logger logger = LoggerFactory.getLogger(CalenderController.class);
     private static HttpTransport httpTransport;
@@ -49,6 +48,7 @@ public class CalenderController {
 
     private String userEmail;
     private String chosenMovie;
+    private String chosenDate;
     private List<String> chosenUsers;
 
     GoogleClientSecrets clientSecrets;
@@ -128,6 +128,8 @@ public class CalenderController {
 
     @RequestMapping(value = "/dates/all", method = RequestMethod.GET)
     public ResponseEntity<List<String>> getAvailableDates(){
+        if(chosenUsers == null)
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(calenderHandler.getAvailableDates(), HttpStatus.OK);
     }
 
@@ -143,12 +145,26 @@ public class CalenderController {
         return new ResponseEntity("Saved", HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/booking/dates/{date}", method = RequestMethod.POST)
+    public ResponseEntity bookDate(@PathVariable String date){
+        chosenDate = date;
+        return new ResponseEntity("Booked date: " + date, HttpStatus.CREATED);
+    }
+
     @RequestMapping(value = "/booking", method = RequestMethod.POST)
-    public ResponseEntity bookEvent(@RequestParam String startDate){
-        Movie movie = movieDbHandler.findMovie(chosenMovie, movieRepository);
-        DateTime startDateTime = new DateTime(startDate + ":00.000");
-        calenderHandler.bookEvent(movie, startDateTime, tokenRepository);
+    public ResponseEntity bookEvent(){
+        if(chosenMovie == null || chosenUsers == null || chosenDate == null){
+            return new ResponseEntity("Could not complete booking. Missing some details.", HttpStatus.ACCEPTED);
+        }
+        calenderHandler.bookEvent(chosenMovie, chosenDate, chosenUsers, movieRepository, userRepository, tokenRepository);
+        chosenMovie = null;
+        chosenDate = null;
+        chosenUsers = null;
         return new ResponseEntity("Movie night booked", HttpStatus.CREATED);
+    }
+
+    public List<String> getChosenUsers(){
+        return chosenUsers;
     }
 
 }

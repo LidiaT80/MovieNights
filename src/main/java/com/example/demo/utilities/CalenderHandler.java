@@ -2,7 +2,9 @@ package com.example.demo.utilities;
 
 import com.example.demo.models.Movie;
 import com.example.demo.models.User;
+import com.example.demo.repositories.MovieRepository;
 import com.example.demo.repositories.TokenRepository;
+import com.example.demo.repositories.UserRepository;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -28,6 +30,7 @@ public class CalenderHandler {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private Credential credential;
     private TokenHandler tokenHandler = new TokenHandler();
+    private MovieDbHandler movieDbHandler = new MovieDbHandler();
     private Map<User,List<Event>> userEvents = new HashMap<>();
     private final int MSEC_PER_DAY = 1000*60*60*24;
 
@@ -132,11 +135,13 @@ public class CalenderHandler {
         return datesBetween;
     }
 
-    public void bookEvent(Movie movie, DateTime dateTime, TokenRepository tokenRepository){
-        Event event = createNewEvent(movie, dateTime);
-        Set<User> users = userEvents.keySet();
-        for (User user: users) {
+    public void bookEvent(String chosenMovie, String startDate, List<String> chosenUsers, MovieRepository movieRepository, UserRepository userRepository, TokenRepository tokenRepository){
+        Movie movie = movieDbHandler.findMovie(chosenMovie, movieRepository);
+        DateTime startDateTime = new DateTime(startDate + ":00.000");
+        Event event = createNewEvent(movie, startDateTime);
+        for (String email: chosenUsers) {
             try {
+                User user = userRepository.findByEmail(email);
                 Calendar.Events events = getCalender(user, tokenRepository);
                 events.insert("primary", event).execute();
             } catch (Exception e) {

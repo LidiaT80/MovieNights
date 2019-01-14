@@ -10,22 +10,26 @@
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/movie">Movies</a></li>
-                <li><a href="/user">Users</a></li>
+                <li><a href="/movie">Find a movie</a></li>
+                <li><a href="/user">Find friends</a></li>
+                <li><a href="/date">Find available time</a> </li>
             </ul>
         </nav>
     </header>
     <main>
         <div id="homePage">
-            <div id="loginForm">
-                <h3>Log in:</h3>
-                <label>Email:</label>
-                <input type="email" v-model="userEmail" placeholder="email" required><br/>
-                <label>Password:</label>
-                <input type="password" v-model="userPassword" placeholder="password" required><br/>
-                <input type="submit" value="Login" v-on:click="signInUser">
+            <div>
+                <div id="loginForm">
+                    <h3>Log in:</h3>
+                    <label>Email:</label>
+                    <input type="email" v-model="userEmail" placeholder="email" required><br/>
+                    <label>Password:</label>
+                    <input type="password" v-model="userPassword" placeholder="password" required><br/>
+                    <input type="submit" value="Login" v-on:click="signInUser">
+                </div>
+                <p class="hidden" id="userTag">Logged in as {{user}}</p>
+                <input type="submit" value="Logout" v-on:click="logout" id="logoutButton" class="hidden">
             </div>
-            <input type="submit" value="Logout" v-on:click="logout" id="logoutButton" class="hidden">
             <div id="registerForm">
                 <h3>New user:</h3>
                 <label>Name:</label>
@@ -52,10 +56,12 @@
               if(localStorage.getItem('token')!=''){
                   if(localStorage.getItem('expiresAt') <= new Date().getTime()){
                       localStorage.setItem('token', '');
+                      localStorage.setItem('email', '');
                   }else{
                       document.getElementById('loginForm').classList.add('hidden');
                       document.getElementById('registerForm').classList.add('hidden');
                       document.getElementById('logoutButton').classList.remove('hidden');
+                      document.getElementById('userTag').classList.remove('hidden');
                   }
               }
             },
@@ -64,7 +70,8 @@
                 userPassword: '',
                 name: '',
                 email: '',
-                password: ''
+                password: '',
+                user: localStorage.getItem('email')
             },
             methods: {
                 registerUser(){
@@ -72,6 +79,7 @@
                     axios.post('http://localhost:8080/new-user', user)
                         .then( response => {
                             alert(response.status + ': ' + response.data);
+                            document.getElementById('registerForm').classList.add('hidden');
                         })
                         .catch( error => console.log(error));
                     this.name = '';
@@ -90,6 +98,7 @@
                             document.getElementById('loginForm').classList.add('hidden');
                             document.getElementById('registerForm').classList.add('hidden');
                             document.getElementById('logoutButton').classList.remove('hidden');
+                            document.getElementById('userTag').classList.remove('hidden');
                         })
                         .catch( error => {
                             if(error.message == 'Request failed with status code 403')
@@ -97,14 +106,19 @@
                             else
                                 console.log(error);
                         });
+                    localStorage.setItem('email', this.userEmail);
+                    this.user = this.userEmail;
                     this.userEmail = '';
                     this.userPassword = '';
                 },
                 logout(){
                     localStorage.setItem('token', '');
+                    localStorage.setItem('email', '');
+                    this.user = '';
                     document.getElementById('loginForm').classList.remove('hidden');
                     document.getElementById('registerForm').classList.remove('hidden');
                     document.getElementById('logoutButton').classList.add('hidden');
+                    document.getElementById('userTag').classList.add('hidden');
                 }
             }
         });
@@ -125,6 +139,20 @@
     <style>
         .hidden{
             display: none;
+        }
+        h1{
+            text-align: center;
+        }
+        nav ul{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            list-style-type: none;
+        }
+        #homePage{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
         }
     </style>
 </body>
