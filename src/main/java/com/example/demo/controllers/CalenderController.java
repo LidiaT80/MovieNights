@@ -1,13 +1,11 @@
 package com.example.demo.controllers;
 
-import com.example.demo.models.Movie;
 import com.example.demo.models.Token;
 import com.example.demo.models.User;
 import com.example.demo.repositories.MovieRepository;
 import com.example.demo.repositories.TokenRepository;
 import com.example.demo.repositories.UserRepository;
 import com.example.demo.utilities.CalenderHandler;
-import com.example.demo.utilities.MovieDbHandler;
 import com.example.demo.utilities.TokenHandler;
 import com.example.demo.utilities.UserDbHandler;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -17,7 +15,6 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

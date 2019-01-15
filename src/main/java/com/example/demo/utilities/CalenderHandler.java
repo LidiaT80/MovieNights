@@ -30,7 +30,6 @@ public class CalenderHandler {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private Credential credential;
     private TokenHandler tokenHandler = new TokenHandler();
-    private MovieDbHandler movieDbHandler = new MovieDbHandler();
     private Map<User,List<Event>> userEvents = new HashMap<>();
     private final int MSEC_PER_DAY = 1000*60*60*24;
 
@@ -136,7 +135,7 @@ public class CalenderHandler {
     }
 
     public void bookEvent(String chosenMovie, String startDate, List<String> chosenUsers, MovieRepository movieRepository, UserRepository userRepository, TokenRepository tokenRepository){
-        Movie movie = movieDbHandler.findMovie(chosenMovie, movieRepository);
+        Movie movie = movieRepository.findByTitle(chosenMovie);
         DateTime startDateTime = new DateTime(startDate + ":00.000");
         Event event = createNewEvent(movie, startDateTime);
         for (String email: chosenUsers) {
