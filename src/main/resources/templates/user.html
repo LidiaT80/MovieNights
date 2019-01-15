@@ -26,13 +26,15 @@
                 </div>
                 <input type="submit" v-on:click="getAllUsers" value="Show all users">
             </div>
-            <div class="hidden" id="userList">
-                <h2>Users:</h2>
-                <ul>
-                    <li v-for="user in users" v-on:click="selectUser">
-                        Name: {{user.displayName}}, Email: {{user.email}}
-                    </li>
-                </ul>
+            <div class="rowClass">
+                <div class="hidden" id="userList">
+                    <h2>Users:</h2>
+                    <ul>
+                        <li v-for="user in users" v-on:click="selectUser">
+                            Name: {{user.displayName}}, Email: {{user.email}}
+                        </li>
+                    </ul>
+                </div>
                 <div class="hidden" id="chosenList">
                     <h3>Selected</h3>
                     <ul>
@@ -40,8 +42,8 @@
                             {{cUser}}
                         </li>
                     </ul>
+                    <input type="submit" id="chooseButton" v-on:click="chooseUsers" value="Confirm">
                 </div>
-                <input type="submit" id="chooseButton" v-on:click="chooseUsers" value="Confirm">
             </div>
         </div>
     </main>
@@ -126,6 +128,11 @@
         .hidden{
             display: none;
         }
+        header{
+            border-bottom-style: double;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
         h1{
             text-align: center;
         }
@@ -139,6 +146,11 @@
             display: flex;
             flex-direction: row;
             justify-content: space-around;
+            padding-top: 20px;
+        }
+        input{
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
     </style>
 </body>

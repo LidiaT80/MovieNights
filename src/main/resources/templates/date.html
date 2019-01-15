@@ -31,7 +31,7 @@
                     <p>Selected date: {{chosenDate}}</p>
                     <input type="submit" value="Book date" v-on:click="chooseDate" id="chooseButton">
                 </div>
-                <input type="submit" value="Change date" v-on:click="changeDate" id="changeButton" class="hidden">
+                <input type="submit" value="Change date" v-on:click="changeDate" id="changeButton" class="hidden"><br/>
                 <input type="submit" value="Book event" v-on:click="bookEvent" id="bookButton">
             </div>
         </div>
@@ -118,6 +118,11 @@
         .hidden{
             display: none;
         }
+        header{
+            border-bottom-style: double;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
         h1{
             text-align: center;
         }
@@ -131,6 +136,15 @@
             display: flex;
             flex-direction: row;
             justify-content: space-around;
+        }
+        input{
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        #bookButton{
+            margin-top: 30px;
+            padding: 8px 15px;
+            font-size: medium;
         }
     </style>
 </body>

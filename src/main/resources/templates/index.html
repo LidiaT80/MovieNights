@@ -18,26 +18,30 @@
     </header>
     <main>
         <div id="homePage">
-            <div>
+            <div class="centerClass">
                 <div id="loginForm">
                     <h3>Log in:</h3>
-                    <label>Email:</label>
-                    <input type="email" v-model="userEmail" placeholder="email" required><br/>
-                    <label>Password:</label>
-                    <input type="password" v-model="userPassword" placeholder="password" required><br/>
+                    <div class="formClass">
+                        <label>Email:</label>
+                        <input type="email" v-model="userEmail" placeholder="email" required><br/>
+                        <label>Password:</label>
+                        <input type="password" v-model="userPassword" placeholder="password" required><br/>
+                    </div>
                     <input type="submit" value="Login" v-on:click="signInUser">
                 </div>
                 <p class="hidden" id="userTag">Logged in as {{user}}</p>
                 <input type="submit" value="Logout" v-on:click="logout" id="logoutButton" class="hidden">
             </div>
-            <div id="registerForm">
+            <div id="registerForm" class="centerClass">
                 <h3>New user:</h3>
-                <label>Name:</label>
-                <input type="text" v-model="name" placeholder="name" required><br/>
-                <label>Email:</label>
-                <input type="email" v-model="email" placeholder="email" required><br/>
-                <label>Password:</label>
-                <input type="text" v-model="password" placeholder="password" required><br/>
+                <div class="formClass">
+                    <label>Name:</label>
+                    <input type="text" v-model="name" placeholder="name" required><br/>
+                    <label>Email:</label>
+                    <input type="email" v-model="email" placeholder="email" required><br/>
+                    <label>Password:</label>
+                    <input type="text" v-model="password" placeholder="password" required><br/>
+                </div>
                 <input type="submit" value="Register" v-on:click="registerUser">
             </div>
         </div>
@@ -140,6 +144,11 @@
         .hidden{
             display: none;
         }
+        header{
+            border-bottom-style: double;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
         h1{
             text-align: center;
         }
@@ -153,6 +162,16 @@
             display: flex;
             flex-direction: row;
             justify-content: space-around;
+        }
+        .formClass{
+            text-align: end;
+        }
+        .centerClass{
+            text-align: center;
+        }
+        input{
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
     </style>
 </body>
