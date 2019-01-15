@@ -49,12 +49,15 @@ public class CalenderHandler {
     }
 
     public List<String> getAvailableDates(){
+        String date;
         List <String> availableDates = new ArrayList<>();
         for (LocalDateTime localDateTime: getAvailableTimes()) {
-            availableDates.add(localDateTime.toString());
+            date = localDateTime.toString().replace("T", " -- ");
+            availableDates.add(date);
         }
         return availableDates;
     }
+
     public List<LocalDateTime> getAvailableTimes(){
         List<LocalDateTime> availableTimes = new ArrayList<>();
         for (LocalDateTime time: getAllTimes()) {

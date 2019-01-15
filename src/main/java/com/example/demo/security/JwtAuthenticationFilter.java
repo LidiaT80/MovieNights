@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header ==  null) {
             chain.doFilter(request,response);
             respStatus = response.getStatus();
-            //requestDetailsRepository.save(new RequestDetails(reqMethod, reqURI, ip, user, time, respStatus));
+            requestDetailsRepository.save(new RequestDetails(reqMethod, reqURI, ip, user, time, respStatus));
             return;
         }
         UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request,response);
         respStatus = response.getStatus();
-        //requestDetailsRepository.save(new RequestDetails(reqMethod, reqURI, ip, user, time, respStatus));
+        requestDetailsRepository.save(new RequestDetails(reqMethod, reqURI, ip, user, time, respStatus));
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
