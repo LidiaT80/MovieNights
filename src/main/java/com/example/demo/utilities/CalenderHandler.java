@@ -31,7 +31,6 @@ public class CalenderHandler {
     private Credential credential;
     private TokenHandler tokenHandler = new TokenHandler();
     private Map<User,List<Event>> userEvents = new HashMap<>();
-    private final int MSEC_PER_DAY = 1000*60*60*24;
 
     public List<Event> getEvents(User user, TokenRepository tokenRepository){
         Calendar.Events events;

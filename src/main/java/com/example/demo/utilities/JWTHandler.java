@@ -3,8 +3,6 @@ package com.example.demo.utilities;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
@@ -17,8 +15,6 @@ import java.util.Date;
 
 @Component
 public class JWTHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(JWTHandler.class);
 
     @Value("${app.jwtSecret}")
     private String jwtSecret;
