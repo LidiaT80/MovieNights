@@ -131,7 +131,7 @@ public class CalenderHandler {
         int interval = endDate.getDayOfYear()-startDate.getDayOfYear();
         int nrOfDaysBetween = interval-1;
             for (int i = 1; i <= nrOfDaysBetween; i++) {
-                datesBetween.add(startDate.plusDays(1));
+                datesBetween.add(startDate.plusDays(i));
             }
         return datesBetween;
     }
