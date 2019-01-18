@@ -144,7 +144,7 @@ public class CalenderController {
 
     @RequestMapping(value = "/booking/dates/{date}", method = RequestMethod.POST)
     public ResponseEntity bookDate(@PathVariable String date){
-        chosenDate = date;
+        chosenDate = date.replace(" -- ", "T");
         return new ResponseEntity("Booked date: " + date, HttpStatus.CREATED);
     }
 
